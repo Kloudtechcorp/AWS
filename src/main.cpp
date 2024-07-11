@@ -86,7 +86,7 @@ const char apn[] = "smartlte"; // Change this to your Provider details
 const char gprsUser[] = "";
 const char gprsPass[] = "";
 const char server[] = "development.kloudtechsea.com"; // Change this to your selection
-const char resource[] = "https://development.kloudtechsea.com/Kloudtrackv4/weather/WeatherReadings/insertDecrypt.php";
+const char resource[] = "https://development.kloudtechsea.com/Kloudtrackv4/weather/WeatherReadings/insertTest.php";
 // const char* host = "development.kloudtechsea.com";
 
 // const char server[] = "kloudtrack.kloudtechsea.com"; // Change this to your selection
@@ -97,68 +97,68 @@ unsigned long timeout;
 
 // CERTIFICATE
 const char *root_ca =
-    "-----BEGIN CERTIFICATE-----\n"
-    "MIIEpQIBAAKCAQEAoo//aRIq9zl73S3QDaNrDaqu7690WIFYMY2vk9uO1BWeKf32\n"
-    "msiFF5bSVW74pBXsk8br4sg259ff2KZu7cQIFwiHDE56ma4776WBFqFiGPZF4tw1\n"
-    "uQxV0razxVZG5BGh7SUZl8jxNwl6Xiu7nQJrGm6SPObJS9ww+8WLxGeqQG/4TtkL\n"
-    "slDYHP4iaxb2brqOdsi7mrWo4t4mn84xXvuRrJtABX6HaZ/HN+ffngkbFWvDeZGq\n"
-    "Ybxwzgpqoflez+Cm7WY648uM3vL+i2636ONUfaWjMPqF4+sZKm9ckkmvkt1skI54\n"
-    "r+djCt1AtdJhGnM06sPWaGfofJ3Ye8Zhc8R2GQIDAQABAoIBAQCLRft4tYwCC0nH\n"
-    "kPxy8tNA/j6qMxPmz8oTimQmtTCFG5BKQb8JlUoRj7HcaBq12eK6KO7neMkxkI3D\n"
-    "O7RGGHEl6rRpIsN+7vuCsbULAnDdGgF9/1Q3mg3dXZJfOy+5LjIgzmxC0nF2ybQB\n"
-    "Ak7Wkb/ZAWpgqwlC6P8+dVzthDMkyGrViO/X6F8q/0knwO11iiUgPIzhc0WH33cr\n"
-    "XjrJA9bJWThCpPU7XBlDsCyH12i4cIDk8+fNDSepjPBtXRF1w3fTw8GeZxmXpg5U\n"
-    "K2o/owdGoDK1jH4hWVo1fmU0b7YASkkGhDejGBkUBCG9rKfIWpPfAy4HiPvLcJrj\n"
-    "sFa8UYDRAoGBANvuWieXNtNKtBjKiCyVMTjQmXcbnGkHEBTDeFWnqKTfqWowXIRh\n"
-    "UA9QJfe5Beqk2Ot9l5IzDFO9nkkinWGnBqBeaeZevloTNfNB/uIK3curhHRY87p6\n"
-    "yuVfjffMx2WEQDNA5INtyvjjFKhIYYGOCAfYekytgxSXRyqN9E79YOYzAoGBAL05\n"
-    "ETRPg+j5wyJOkhV82u9vbY/Tl6Pb2unRAOXqESSoGtgYOR6NKmbN1dtPhRMBTQrq\n"
-    "PxVjPn2VPlPSkf7cafw9VpTQu+VGHSDoCmMoWhaqJ8dkiDDy4EgmnMWU4jBznLm3\n"
-    "xrVyxRe4qCk+TeMU/Rfonm3LyUrIxt2xEy/uaK6DAoGBAIl/mfO4kTlGMhRxwvME\n"
-    "j1Jy8A9MPtxW4xHoJzp96GyzvIo8FAtbf58jP6mBjpZlW4zW50UrDyDnoqccsgJU\n"
-    "V0s528GAKEfOTON5ti2CF6p24AeReUdz75e5xttOtrbcGPsyLeuRX918svSG1BcY\n"
-    "QiMNj2CS9imQbpjHSR99P/CLAoGBAIf8DQsk4c16QOvUv1NF6SkNURV9oIqXo5lJ\n"
-    "JHYWYr+PN8t4jQQRuxkqb7guS5o+4xknArLiIbSqnqIqv9UCngAyLJjB8WZxntlZ\n"
-    "KK3d//At1GyNKPrUcK4pYZz0xCDB1S36jokzs8S6Zc9OATdijAi0mbaaL0zZQWFs\n"
-    "sjdOBFj1AoGAHcuTZIyTgtKo61pIeZXQvUxdwsa+Ngr4meUx3KKk1/uOcd/vM79D\n"
-    "nIMpDZyTEknIWxwBqCki7aFdiGwH5yK2490vYzXOiS5IXALE52G2t4hI2nOfquHo\n"
-    "f6YdAF0OEvDcFfof5SKjYqkunPSs9LtjVGyiPJv8R9bdxPhbq7cidMw=\n"
-    "-----END CERTIFICATE-----\n";
-//     "-----BEGIN CERTIFICATE-----\n" \
-// "MIIGJTCCBQ2gAwIBAgISBNKBw5RrEabvEQ8qXuXIicRZMA0GCSqGSIb3DQEBCwUA\n" \
-// "MDIxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MQswCQYDVQQD\n" \
-// "EwJSMzAeFw0yNDA1MDMwNTAwMTlaFw0yNDA4MDEwNTAwMThaMCYxJDAiBgNVBAMT\n" \
-// "G2tsb3VkdHJhY2sua2xvdWR0ZWNoc2VhLmNvbTCCAiIwDQYJKoZIhvcNAQEBBQAD\n" \
-// "ggIPADCCAgoCggIBAJ2jaT1JSGu/EB3ZasUd1iqGWoUypAxCuSD5unPIWrMePVj4\n" \
-// "lJ/DTyrusWzbnkSfN/IiObhZR0hfdUMJVDXJ5kVw21iGFTiG6Q88G1mnICH7Dmju\n" \
-// "fAXVrTdPtPRDnM17nGKVv/eNtxA9tqrvnfAA+aaRiWe2zI+8r/FBPSMr1/sEzLCb\n" \
-// "cpbNSSA56EFQ6KN7nJNFLCZyiJq+3DyIWvhxTW5nmTsj4GTz9LNA1KxQTIxPdS7P\n" \
-// "4DYfPoXbwGOQJd6Qp+rBNp0q8P2zazFwCUctJMCzUvTPkXiLOQa10ZmgXMS+m+qd\n" \
-// "xcnV+OBBhm5A4ePkWxj3gG/qMs9xL46u3oYO5a8XFevtQtFefZ/XOh3kWFd1HcMe\n" \
-// "aLeaZSizZhqZLKMl5jjhnytdbJLqr3XMqHTwYBrqzDjIIQrz05QtwiO2rgmAueTQ\n" \
-// "I5PkCFoM/BCMYncXWr2ut2dpaUmjnc+m+0Tj9UhC8EywjomDHuxoz88jLCeXcucT\n" \
-// "OqAn4CnNGPqnCpjZsi8eDc/UScwX9/wvKK3SjVoxkQ79JYEMJrt9T8QpCdz7Jnlz\n" \
-// "o7mLkjIg1myrNPaXT9e43+2BBsB0Z45dzCwSCdfQa6Yiq9hhL35jH/9gewwG0Cts\n" \
-// "2ZeAOgOLBfdDIZ0iMmgJrjqJMquGJo9jhjitZ2n12kR9kqXXMH+whut2FJ9tAgMB\n" \
-// "AAGjggI/MIICOzAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwEG\n" \
-// "CCsGAQUFBwMCMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFA+bIIZGnU749LOPr1Zm\n" \
-// "JsTDDFMbMB8GA1UdIwQYMBaAFBQusxe3WFbLrlAJQOYfr52LFMLGMFUGCCsGAQUF\n" \
-// "BwEBBEkwRzAhBggrBgEFBQcwAYYVaHR0cDovL3IzLm8ubGVuY3Iub3JnMCIGCCsG\n" \
-// "AQUFBzAChhZodHRwOi8vcjMuaS5sZW5jci5vcmcvMEcGA1UdEQRAMD6CG2tsb3Vk\n" \
-// "dHJhY2sua2xvdWR0ZWNoc2VhLmNvbYIfd3d3Lmtsb3VkdHJhY2sua2xvdWR0ZWNo\n" \
-// "c2VhLmNvbTATBgNVHSAEDDAKMAgGBmeBDAECATCCAQUGCisGAQQB1nkCBAIEgfYE\n" \
-// "gfMA8QB3AEiw42vapkc0D+VqAvqdMOscUgHLVt0sgdm7v6s52IRzAAABjz0KDG4A\n" \
-// "AAQDAEgwRgIhAOcRiEp+2Ci1hTER/7D53V/ffcWqViZjqRlpzCA2ob1eAiEAqt7B\n" \
-// "+w5YGGcbninZX4zhX+KDjpHZroSuBr/6i9L+V/IAdgA/F0tP1yJHWJQdZRyEvg0S\n" \
-// "7ZA3fx+FauvBvyiF7PhkbgAAAY89Cgx7AAAEAwBHMEUCIEeNLdSPgsped5lnQvbD\n" \
-// "K3KC5HVQo5qaFk71RB7XbF+dAiEAoG42c29IPxepsHcno1hedijlr6As/FSTeAYa\n" \
-// "nh5lcSQwDQYJKoZIhvcNAQELBQADggEBAGkNCgI4kxfP5LfpqHYBJXsqfIXBLEca\n" \
-// "4nfp4j894K56du9age2XbzTg/c5nlQJAUEoMPZyN0yimqpdPwDR89Eq+m9EdVcNl\n" \
-// "5imJzeM766eWM+K78d2bE+1reqij63Y34lurZUIH0CAP5cH9q85CYok53ZFTQque\n" \
-// "mkfsYT+furu3I88RGfAgpEpWczZTJO+TK0Yudm8EipwUsdlKCOkreFMUwOpBCPdk\n" \
-// "Th2/SDDI9OHFSFYbQZVKabOkQaW4UbVgjydehXnWnzOuzRkQD64rdPBk9Xw3DRS9\n" \
-// "oeges2GJDrMBrUvFL4uetweyPEeDJktOAsQKEqeD3O3t4Qqi2uKpGns=\n" \
-// "-----END CERTIFICATE-----\n";
+    // "-----BEGIN CERTIFICATE-----\n"
+    // "MIIEpQIBAAKCAQEAoo//aRIq9zl73S3QDaNrDaqu7690WIFYMY2vk9uO1BWeKf32\n"
+    // "msiFF5bSVW74pBXsk8br4sg259ff2KZu7cQIFwiHDE56ma4776WBFqFiGPZF4tw1\n"
+    // "uQxV0razxVZG5BGh7SUZl8jxNwl6Xiu7nQJrGm6SPObJS9ww+8WLxGeqQG/4TtkL\n"
+    // "slDYHP4iaxb2brqOdsi7mrWo4t4mn84xXvuRrJtABX6HaZ/HN+ffngkbFWvDeZGq\n"
+    // "Ybxwzgpqoflez+Cm7WY648uM3vL+i2636ONUfaWjMPqF4+sZKm9ckkmvkt1skI54\n"
+    // "r+djCt1AtdJhGnM06sPWaGfofJ3Ye8Zhc8R2GQIDAQABAoIBAQCLRft4tYwCC0nH\n"
+    // "kPxy8tNA/j6qMxPmz8oTimQmtTCFG5BKQb8JlUoRj7HcaBq12eK6KO7neMkxkI3D\n"
+    // "O7RGGHEl6rRpIsN+7vuCsbULAnDdGgF9/1Q3mg3dXZJfOy+5LjIgzmxC0nF2ybQB\n"
+    // "Ak7Wkb/ZAWpgqwlC6P8+dVzthDMkyGrViO/X6F8q/0knwO11iiUgPIzhc0WH33cr\n"
+    // "XjrJA9bJWThCpPU7XBlDsCyH12i4cIDk8+fNDSepjPBtXRF1w3fTw8GeZxmXpg5U\n"
+    // "K2o/owdGoDK1jH4hWVo1fmU0b7YASkkGhDejGBkUBCG9rKfIWpPfAy4HiPvLcJrj\n"
+    // "sFa8UYDRAoGBANvuWieXNtNKtBjKiCyVMTjQmXcbnGkHEBTDeFWnqKTfqWowXIRh\n"
+    // "UA9QJfe5Beqk2Ot9l5IzDFO9nkkinWGnBqBeaeZevloTNfNB/uIK3curhHRY87p6\n"
+    // "yuVfjffMx2WEQDNA5INtyvjjFKhIYYGOCAfYekytgxSXRyqN9E79YOYzAoGBAL05\n"
+    // "ETRPg+j5wyJOkhV82u9vbY/Tl6Pb2unRAOXqESSoGtgYOR6NKmbN1dtPhRMBTQrq\n"
+    // "PxVjPn2VPlPSkf7cafw9VpTQu+VGHSDoCmMoWhaqJ8dkiDDy4EgmnMWU4jBznLm3\n"
+    // "xrVyxRe4qCk+TeMU/Rfonm3LyUrIxt2xEy/uaK6DAoGBAIl/mfO4kTlGMhRxwvME\n"
+    // "j1Jy8A9MPtxW4xHoJzp96GyzvIo8FAtbf58jP6mBjpZlW4zW50UrDyDnoqccsgJU\n"
+    // "V0s528GAKEfOTON5ti2CF6p24AeReUdz75e5xttOtrbcGPsyLeuRX918svSG1BcY\n"
+    // "QiMNj2CS9imQbpjHSR99P/CLAoGBAIf8DQsk4c16QOvUv1NF6SkNURV9oIqXo5lJ\n"
+    // "JHYWYr+PN8t4jQQRuxkqb7guS5o+4xknArLiIbSqnqIqv9UCngAyLJjB8WZxntlZ\n"
+    // "KK3d//At1GyNKPrUcK4pYZz0xCDB1S36jokzs8S6Zc9OATdijAi0mbaaL0zZQWFs\n"
+    // "sjdOBFj1AoGAHcuTZIyTgtKo61pIeZXQvUxdwsa+Ngr4meUx3KKk1/uOcd/vM79D\n"
+    // "nIMpDZyTEknIWxwBqCki7aFdiGwH5yK2490vYzXOiS5IXALE52G2t4hI2nOfquHo\n"
+    // "f6YdAF0OEvDcFfof5SKjYqkunPSs9LtjVGyiPJv8R9bdxPhbq7cidMw=\n"
+    // "-----END CERTIFICATE-----\n";
+    "-----BEGIN CERTIFICATE-----\n" \
+"MIIGJTCCBQ2gAwIBAgISBNKBw5RrEabvEQ8qXuXIicRZMA0GCSqGSIb3DQEBCwUA\n" \
+"MDIxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MQswCQYDVQQD\n" \
+"EwJSMzAeFw0yNDA1MDMwNTAwMTlaFw0yNDA4MDEwNTAwMThaMCYxJDAiBgNVBAMT\n" \
+"G2tsb3VkdHJhY2sua2xvdWR0ZWNoc2VhLmNvbTCCAiIwDQYJKoZIhvcNAQEBBQAD\n" \
+"ggIPADCCAgoCggIBAJ2jaT1JSGu/EB3ZasUd1iqGWoUypAxCuSD5unPIWrMePVj4\n" \
+"lJ/DTyrusWzbnkSfN/IiObhZR0hfdUMJVDXJ5kVw21iGFTiG6Q88G1mnICH7Dmju\n" \
+"fAXVrTdPtPRDnM17nGKVv/eNtxA9tqrvnfAA+aaRiWe2zI+8r/FBPSMr1/sEzLCb\n" \
+"cpbNSSA56EFQ6KN7nJNFLCZyiJq+3DyIWvhxTW5nmTsj4GTz9LNA1KxQTIxPdS7P\n" \
+"4DYfPoXbwGOQJd6Qp+rBNp0q8P2zazFwCUctJMCzUvTPkXiLOQa10ZmgXMS+m+qd\n" \
+"xcnV+OBBhm5A4ePkWxj3gG/qMs9xL46u3oYO5a8XFevtQtFefZ/XOh3kWFd1HcMe\n" \
+"aLeaZSizZhqZLKMl5jjhnytdbJLqr3XMqHTwYBrqzDjIIQrz05QtwiO2rgmAueTQ\n" \
+"I5PkCFoM/BCMYncXWr2ut2dpaUmjnc+m+0Tj9UhC8EywjomDHuxoz88jLCeXcucT\n" \
+"OqAn4CnNGPqnCpjZsi8eDc/UScwX9/wvKK3SjVoxkQ79JYEMJrt9T8QpCdz7Jnlz\n" \
+"o7mLkjIg1myrNPaXT9e43+2BBsB0Z45dzCwSCdfQa6Yiq9hhL35jH/9gewwG0Cts\n" \
+"2ZeAOgOLBfdDIZ0iMmgJrjqJMquGJo9jhjitZ2n12kR9kqXXMH+whut2FJ9tAgMB\n" \
+"AAGjggI/MIICOzAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwEG\n" \
+"CCsGAQUFBwMCMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFA+bIIZGnU749LOPr1Zm\n" \
+"JsTDDFMbMB8GA1UdIwQYMBaAFBQusxe3WFbLrlAJQOYfr52LFMLGMFUGCCsGAQUF\n" \
+"BwEBBEkwRzAhBggrBgEFBQcwAYYVaHR0cDovL3IzLm8ubGVuY3Iub3JnMCIGCCsG\n" \
+"AQUFBzAChhZodHRwOi8vcjMuaS5sZW5jci5vcmcvMEcGA1UdEQRAMD6CG2tsb3Vk\n" \
+"dHJhY2sua2xvdWR0ZWNoc2VhLmNvbYIfd3d3Lmtsb3VkdHJhY2sua2xvdWR0ZWNo\n" \
+"c2VhLmNvbTATBgNVHSAEDDAKMAgGBmeBDAECATCCAQUGCisGAQQB1nkCBAIEgfYE\n" \
+"gfMA8QB3AEiw42vapkc0D+VqAvqdMOscUgHLVt0sgdm7v6s52IRzAAABjz0KDG4A\n" \
+"AAQDAEgwRgIhAOcRiEp+2Ci1hTER/7D53V/ffcWqViZjqRlpzCA2ob1eAiEAqt7B\n" \
+"+w5YGGcbninZX4zhX+KDjpHZroSuBr/6i9L+V/IAdgA/F0tP1yJHWJQdZRyEvg0S\n" \
+"7ZA3fx+FauvBvyiF7PhkbgAAAY89Cgx7AAAEAwBHMEUCIEeNLdSPgsped5lnQvbD\n" \
+"K3KC5HVQo5qaFk71RB7XbF+dAiEAoG42c29IPxepsHcno1hedijlr6As/FSTeAYa\n" \
+"nh5lcSQwDQYJKoZIhvcNAQELBQADggEBAGkNCgI4kxfP5LfpqHYBJXsqfIXBLEca\n" \
+"4nfp4j894K56du9age2XbzTg/c5nlQJAUEoMPZyN0yimqpdPwDR89Eq+m9EdVcNl\n" \
+"5imJzeM766eWM+K78d2bE+1reqij63Y34lurZUIH0CAP5cH9q85CYok53ZFTQque\n" \
+"mkfsYT+furu3I88RGfAgpEpWczZTJO+TK0Yudm8EipwUsdlKCOkreFMUwOpBCPdk\n" \
+"Th2/SDDI9OHFSFYbQZVKabOkQaW4UbVgjydehXnWnzOuzRkQD64rdPBk9Xw3DRS9\n" \
+"oeges2GJDrMBrUvFL4uetweyPEeDJktOAsQKEqeD3O3t4Qqi2uKpGns=\n" \
+"-----END CERTIFICATE-----\n";
 
 
 // HTTPS Transport
@@ -742,7 +742,7 @@ void setup()
   SerialMon.println(" >Failed");
 
   // Setting the SSL cert to the secure_layer obj
-  //secure_layer.setCACert(root_ca);
+  // secure_layer.setCACert(root_ca);
 }
 
 void loop()
@@ -883,7 +883,7 @@ void loop()
       SerialMon.println("Making POST request securely");
       String contentType = "Content-Type: application/json";
 
-      String postData = "{\"esp32_id\":\"ktrack_sibacan\",\"key\":\"A197C\",\"timeRec\":\"" + Time + "\" ,\"serial\":\"5bb2af\",\"loc\":\"Sibacan, Balanga, Bataan\",\"light\" :\" " + encryptedB64Light + " \",\"irradiance\": \" " + encryptedB64Irradiance + " \" ,\"uvIntensity\": \" " + encryptedB64UVIntensity + " \" ,\"windDirection\": \" " + encryptedB64WindDirection + " \" ,\"windSpeed\":" + " \" " + encryptedB64Windspeed + " \" ,\"rainfall\":" + " \" " + encryptedB64RainGuage + " \" ,\"heatindexdata\":" + " \" " + encryptedB64HeatIndex + " \" " + ",\"T1\":" + " \" " + encryptedB64Temp1 + " \" ,\"T2\": \" " + encryptedB64Temp2 + " \" ,\"H1\": \" " + encryptedB64Hum1 + " \" , \"H2\": \" " + encryptedB64Hum2 + " \" ,\"P1\": \" " + encryptedB64Press1 + " \" ,\"P2\": \" " + encryptedB64Press2 + " \" " + "}";
+      String postData = "{\"esp32_id\":\"ktrack_sibacan\",\"key\":\"A197C\",\"timeRec\":\"" + Time + "\" ,\"serial\":\"5bb2ah\",\"loc\":\"Sibacan, Balanga, Bataan\",\"light\" :\" " + encryptedB64Light + " \",\"irradiance\": \" " + encryptedB64Irradiance + " \" ,\"uvIntensity\": \" " + encryptedB64UVIntensity + " \" ,\"windDirection\": \" " + encryptedB64WindDirection + " \" ,\"windSpeed\":" + " \" " + encryptedB64Windspeed + " \" ,\"rainfall\":" + " \" " + encryptedB64RainGuage + " \" ,\"heatindexdata\":" + " \" " + encryptedB64HeatIndex + " \" " + ",\"T1\":" + " \" " + encryptedB64Temp1 + " \" ,\"T2\": \" " + encryptedB64Temp2 + " \" ,\"H1\": \" " + encryptedB64Hum1 + " \" , \"H2\": \" " + encryptedB64Hum2 + " \" ,\"P1\": \" " + encryptedB64Press1 + " \" ,\"P2\": \" " + encryptedB64Press2 + " \" " + "}";
       // String postData = "{\"key\":\"A197C\",\"loc\":\"Pto. Rivas Ibaba, Balanga City, Bataan\",\"timeRec\":\""+ Time+"\",\"light\" :\" " + encryptedB64Light + " \",\"irradiance\": \" " + encryptedB64Irradiance + " \" ,\"uvIntensity\": \" " + encryptedB64UVIntensity + " \" ,\"windDirection\": \" " + encryptedB64WindDirection + " \" ,\"windSpeed\":"+ " \" " + encryptedB64Windspeed+" \" ,\"rainGuage\":"+ " \" " + encryptedB64RainGuage +" \" ,\"heatindexdata\":"+ " \" " + encryptedB64HeatIndex +" \" " +",\"T1\":" + " \" " + encryptedB64Temp1 +" \" ,\"T2\": \" " + encryptedB64Temp2 +" \" ,\"H1\": \" " +  encryptedB64Hum1 + " \" , \"H2\": \" " + encryptedB64Hum2 +" \" ,\"P1\": \" "+encryptedB64Press1+" \" ,\"P2\": \" " + encryptedB64Press2 +" \" "+"}";
 
       SerialMon.println("");

@@ -111,9 +111,9 @@ void handleDownloadCSV() {
   server.sendHeader("Content-Disposition", "attachment; filename=data.csv");
   server.send(200, "text/csv", csv);
 
-  // Delete contents of temperature and humidity files after download
-  deleteFileContent("/temperature.txt");
-  deleteFileContent("/humidity.txt");
+  // // Delete contents of temperature and humidity files after download
+  // deleteFileContent("/temperature.txt");
+  // deleteFileContent("/humidity.txt");
 }
 
 //----------------------------------------Setup
