@@ -162,10 +162,12 @@ float irradiance = 0;
 float tipValue = 0.1099, rain;
 uint16_t receivedRainCount;
 
-// Wind Speed var
+// Wind Speed and Gust var
 float windspeed;
 int REV, radius = 100, period = TIME_TO_SLEEP;
 uint16_t receivedWindCount;
+float gust;
+uint16_t receivedGustCount;
 
 // Battery Percentage Library
 #include <Adafruit_INA219.h>
@@ -337,7 +339,7 @@ void getSlave()
   Wire.requestFrom(SLAVE, 4);
 
   // Rain
-  while (2 < Wire.available())
+  while (4 < Wire.available())
   {
     byte msb = Wire.read();
     byte lsb = Wire.read();
@@ -346,13 +348,22 @@ void getSlave()
   rain = receivedRainCount * tipValue;
 
   // Wind speed
-  while (Wire.available())
+  while (2 < Wire.available())
   {
     byte msb = Wire.read();
     byte lsb = Wire.read();
     receivedWindCount = (msb << 8) | lsb;
   }
   windspeed = (2 * PI * radius * receivedWindCount * 3.6) / (period * 1000);
+
+  // Gust
+  while (Wire.available()) 
+  {
+    byte msb = Wire.read();
+    byte lsb = Wire.read();
+    receivedGustCount = (msb << 8) | lsb;
+  }
+  gust = (2 * PI * radius * receivedGustCount * 3.6) / (3 * 1000);
 }
 
 void getBatteryPerc() 
@@ -514,6 +525,7 @@ void setup()
     SerialMon.println(" Failed");
     windspeed_str = "";
     rain_str = "";
+    gust_str = "";
   }
   else
   {
@@ -521,6 +533,7 @@ void setup()
     getSlave();
     windspeed_str = String(windspeed);
     rain_str = String(rain);
+    gust_str = String(gust);
   }
   delay(10);
 
@@ -637,6 +650,7 @@ void loop()
       SerialMon.println("Wind Direction = " + winddir_str);
       SerialMon.println("Wind Speed = " + windspeed_str);
       SerialMon.println("Rain = " + rain_str);
+      SerialMon.println("Gust = " + gust_str);
       SerialMon.println("Battery Percentage = " + battery_str);
 
       // Start RTC
@@ -672,7 +686,7 @@ void loop()
       SerialMon.println("Making POST request securely");
       String contentType = "Content-Type: application/json";
 
-      String postData = "{\"esp32_id\":\"ktrack_sibacan\", \"key\":\"A197C\", \"timeRec\":\" " + Time + "\", \"serial\":\"5bb2af\", \"loc\":\"Sibacan, Balanga, Bataan\", \"light\" :\" " + light_str + "\", \"irradiance\":\" " + irradiance_str + "\", \"uvIntensity\": \" " + uvintensity_str + "\", \"windDirection\": \" " + winddir_str + "\", \"windSpeed\": \" " + windspeed_str + " \", \"rainfall\": \" " + rain_str + " \", \"T1\": \" " + t1_str + " \", \"T2\": \" " + t2_str + " \", \"T3\": \" " + t3_str + " \", \"H1\": \" " + h1_str + " \", \"H2\": \" " + h2_str + " \", \"H3\": \" " + h3_str + " \", \"P1\": \" " + p1_str + " \", \"P2\": \" " + p2_str + " \", \"P3\": \" " + p3_str + " \", \"cloudcover\":\"0\", \"batteryPercentage\": \" " + battery_str + " \"}";
+      String postData = "{\"esp32_id\":\"ktrack_sibacan\", \"key\":\"A197C\", \"timeRec\":\" " + Time + "\", \"serial\":\"5bb2af\", \"loc\":\"Sibacan, Balanga, Bataan\", \"light\" :\" " + light_str + "\", \"irradiance\":\" " + irradiance_str + "\", \"uvIntensity\": \" " + uvintensity_str + "\", \"windDirection\": \" " + winddir_str + "\", \"windSpeed\": \" " + windspeed_str + " \", \"rainfall\": \" " + rain_str + " \", \"gust\": \" " + gust_str + " \", \"T1\": \" " + t1_str + " \", \"T2\": \" " + t2_str + " \", \"T3\": \" " + t3_str + " \", \"H1\": \" " + h1_str + " \", \"H2\": \" " + h2_str + " \", \"H3\": \" " + h3_str + " \", \"P1\": \" " + p1_str + " \", \"P2\": \" " + p2_str + " \", \"P3\": \" " + p3_str + " \", \"cloudcover\":\"0\", \"batteryPercentage\": \" " + battery_str + " \"}";
 
       SerialMon.println("");
       SerialMon.println("\n=========================================POST Data ============================================");
