@@ -135,12 +135,10 @@ int lowbyte;
 word highbyte;
 int rawAngle;
 float degAngle;
-int quadrantNumber, previousquadrantNumber;
-float numberofTurns = 0;
-float correctedAngle = 0;
+int correctedAngle = 0;
 float startAngle = 0;
-float totalAngle = 0;
-float previoustotalAngle = 0;
+RTC_DATA_ATTR float rtcStartAngle = 0;
+RTC_DATA_ATTR int rtcCorrectAngle = 0;
 
 // UV Variables
 #define UVPIN 32
@@ -169,12 +167,11 @@ uint16_t receivedWindCount;
 float gust;
 uint16_t receivedGustCount;
 
-// Battery Percentage Library
+// Battery Voltage Library
 #include <Adafruit_INA219.h>
 Adafruit_INA219 ina219;
-// Battery Percentage Variables
+// Battery Voltage Variables
 float busVoltage;
-float perc;
 
 // String Parameters
 String t1_str;
@@ -259,13 +256,14 @@ void logDataToSDCard()
   }
 }
 
-void select_bus(uint8_t bus) {
+void select_bus(uint8_t bus)
+{
   Wire.beginTransmission(0x70);
   Wire.write(1 << bus);
   Wire.endTransmission();
 }
 
-void getBME(Adafruit_BME280 bme, int bus, float* temp, float* hum, float* pres)
+void getBME(Adafruit_BME280 bme, int bus, float *temp, float *hum, float *pres)
 {
   select_bus(bus);
   *temp = bme.readTemperature();
@@ -277,7 +275,7 @@ void getUV()
 {
   sensorValue = analogRead(UVPIN);
   sensorVoltage = sensorValue * (3.3 / 4095);
-  UV_intensity = sensorVoltage / 0.1;
+  UV_intensity = sensorVoltage * 1000;
 }
 
 void getLight()
@@ -293,19 +291,13 @@ void ReadRawAngle()
   Wire.write(0x0D);             // figure 21 - register map: Raw angle (7:0)
   Wire.endTransmission();       // end transmission
   Wire.requestFrom(0x36, 1);    // request from the sensor
-
-  while (Wire.available() == 0)
-    ;                    // wait until it becomes available
-  lowbyte = Wire.read(); // Reading the data after the request
+  lowbyte = Wire.read();        // Reading the data after the request
 
   // 11:8 - 4 bits
   Wire.beginTransmission(0x36);
   Wire.write(0x0C); // figure 21 - register map: Raw angle (11:8)
   Wire.endTransmission();
   Wire.requestFrom(0x36, 1);
-
-  while (Wire.available() == 0)
-    ;
   highbyte = Wire.read();
 
   // 4 bits have to be shifted to its proper place as we want to build a 12-bit number
@@ -317,14 +309,15 @@ void ReadRawAngle()
 void correctAngle()
 {
   // recalculate angle
-  correctedAngle = degAngle - startAngle; // this tares the position
+  correctedAngle = 360 - degAngle + startAngle; // this tares the position
 
   // correctedAngle = correctedAngle + 48.75;
 
-  if (correctedAngle < 0) // if the calculated angle is negative, we need to "normalize" it
+  if (correctedAngle > 360) // if the calculated angle is negative, we need to "normalize" it
   {
-    correctedAngle = correctedAngle + 360; // correction for negative numbers (i.e. -15 becomes +345)
+    correctedAngle -= 360; // correction for negative numbers (i.e. -15 becomes +345)
   }
+  rtcCorrectAngle = correctedAngle;
 }
 
 void getDirection()
@@ -357,7 +350,7 @@ void getSlave()
   windspeed = (2 * PI * radius * receivedWindCount * 3.6) / (period * 1000);
 
   // Gust
-  while (Wire.available()) 
+  while (Wire.available())
   {
     byte msb = Wire.read();
     byte lsb = Wire.read();
@@ -366,10 +359,9 @@ void getSlave()
   gust = (2 * PI * radius * receivedGustCount * 3.6) / (3 * 1000);
 }
 
-void getBatteryPerc() 
+void getBatteryVoltage()
 {
-		busVoltage = ina219.getBusVoltage_V();
-  perc = (busVoltage / 12.6) * 100; 
+  busVoltage = ina219.getBusVoltage_V();
 }
 
 void GSMinit()
@@ -486,7 +478,7 @@ void setup()
 
   // UV Connect
   SerialMon.print("UV: ");
-  float UV_status = analogRead(32);
+  int UV_status = analogRead(32);
   if (UV_status < 0)
   {
     SerialMon.println(" Failed");
@@ -502,9 +494,10 @@ void setup()
 
   // AS5600 Connect
   SerialMon.print("AS5600: ");
-  bool direction_status;
-  direction_status = Wire.begin();
-  if (!direction_status)
+  bool winddir_status;
+  Wire.beginTransmission(0x36);
+  winddir_status = (Wire.endTransmission() == 0);
+  if (!winddir_status)
   {
     SerialMon.println(" Failed");
     winddir_str = "";
@@ -519,7 +512,8 @@ void setup()
   // Slave Connect
   SerialMon.print("Slave: ");
   bool Slave_status;
-  Slave_status = Wire.begin();
+  Wire.beginTransmission(SLAVE);
+  Slave_status = (Wire.endTransmission() == 0);
   if (!Slave_status)
   {
     SerialMon.println(" Failed");
@@ -537,22 +531,22 @@ void setup()
   }
   delay(10);
 
-		// INA219 Connect
+  // INA219 Connect
   SerialMon.print("INA219: ");
-		bool battery_status;
-		battery_status = ina219.begin();
-		if (!battery_status) 
+  bool battery_status;
+  battery_status = ina219.begin();
+  if (!battery_status)
   {
-  			SerialMon.println(" Failed");
-				battery_str;
+    SerialMon.println(" Failed");
+    battery_str;
   }
-		else
-		{
-				SerialMon.println(" OK");
-				getBatteryPerc();
-    battery_str = String(perc);
-		}
-		delay(10);
+  else
+  {
+    SerialMon.println(" OK");
+    getBatteryVoltage();
+    battery_str = String(busVoltage);
+  }
+  delay(10);
 
   // Start SD Card
   SerialMon.println("\n========================================SD Card Initializing========================================");
