@@ -54,7 +54,7 @@ const char apn[] = "smartlte"; // Change this to your Provider details
 const char gprsUser[] = "";
 const char gprsPass[] = "";
 const char server[] = "v1server.kloudtechsea.com"; // Change this to your selection
-const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=b1aceef9-fb78-405c-b3e3-3a6be96f6932";
+const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
 
 const int port = 443;
 unsigned long timeout;
@@ -184,7 +184,6 @@ String t3_str;
 String h3_str;
 String p3_str;
 String light_str;
-String irradiance_str;
 String uvintensity_str;
 String winddir_str;
 String windspeed_str;
@@ -244,7 +243,7 @@ void logDataToSDCard()
     SerialMon.println("Filename:" + filename);
     String datetime = getTime();
     SerialMon.println("Datetime: " + datetime);
-    sprintf(data, ",%.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f", t1, h1, p1, t2, h2, p2, t3, h3, p3, correctedAngle, lux, UV_intensity, rain, windspeed);
+    sprintf(data, "%.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f", t1, h1, p1, t2, h2, p2, t3, h3, p3, correctedAngle, lux, UV_intensity, rain, windspeed);
     SerialMon.println("Data: " + String(data));
     String log = datetime + data;
 
@@ -281,7 +280,6 @@ void getUV()
 void getLight()
 {
   lux = lightMeter.readLightLevel();
-  irradiance = lightMeter.readLightLevel() / 683;
 }
 
 void ReadRawAngle()
@@ -465,14 +463,12 @@ void setup()
   {
     SerialMon.println(" Failed");
     light_str = "";
-    irradiance_str = "";
   }
   else
   {
     SerialMon.println(" OK");
     getLight();
     light_str = String(lux);
-    irradiance_str = String(irradiance);
   }
   delay(10);
 
@@ -538,7 +534,7 @@ void setup()
   if (!battery_status)
   {
     SerialMon.println(" Failed");
-    battery_str;
+    battery_str = "";
   }
   else
   {
@@ -552,8 +548,8 @@ void setup()
   SerialMon.println("\n========================================SD Card Initializing========================================");
   SerialMon.print("Connecting to SD Card...");
   spi.begin(SCK, MISO, MOSI, CS);
+  rtc.begin();
   logDataToSDCard();
-  SerialMon.println();
 
   // Initialize GSM
   SerialMon.println("\n========================================GSM Initializing========================================");
@@ -707,6 +703,6 @@ void loop()
     }
   }
   // Set Timer and Sleep
-  esp_sleep_enable_timer_wakeup(sleeptimer(millis(), TIME_TO_SLEEP) * uS_TO_S_FACTOR);
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
   esp_deep_sleep_start();
 }
