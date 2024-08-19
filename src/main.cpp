@@ -53,8 +53,8 @@ TinyGsm modem(SerialAT);
 const char apn[] = "smartlte"; // Change this to your Provider details
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-const char server[] = "development.kloudtechsea.com"; // Change this to your selection
-const char resource[] = "https://development.kloudtechsea.com/Kloudtrackv4/weather/WeatherReadings/insertTest.php";
+const char server[] = "v1server.kloudtechsea.com"; // Change this to your selection
+const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=b1aceef9-fb78-405c-b3e3-3a6be96f6932";
 
 const int port = 443;
 unsigned long timeout;
@@ -639,13 +639,12 @@ void loop()
       SerialMon.println("P2 = " + p2_str);
       SerialMon.println("P3 = " + p3_str);
       SerialMon.println("Light Intensity = " + light_str);
-      SerialMon.println("Irradiance = " + irradiance_str);
       SerialMon.println("UV Intensity = " + uvintensity_str);
       SerialMon.println("Wind Direction = " + winddir_str);
       SerialMon.println("Wind Speed = " + windspeed_str);
       SerialMon.println("Rain = " + rain_str);
       SerialMon.println("Gust = " + gust_str);
-      SerialMon.println("Battery Percentage = " + battery_str);
+      SerialMon.println("Battery Voltage = " + battery_str);
 
       // Start RTC
       SerialMon.println("\n========================================RTC Initializing========================================");
@@ -680,7 +679,7 @@ void loop()
       SerialMon.println("Making POST request securely");
       String contentType = "Content-Type: application/json";
 
-      String postData = "{\"esp32_id\":\"ktrack_sibacan\", \"key\":\"A197C\", \"timeRec\":\" " + Time + "\", \"serial\":\"5bb2af\", \"loc\":\"Sibacan, Balanga, Bataan\", \"light\" :\" " + light_str + "\", \"irradiance\":\" " + irradiance_str + "\", \"uvIntensity\": \" " + uvintensity_str + "\", \"windDirection\": \" " + winddir_str + "\", \"windSpeed\": \" " + windspeed_str + " \", \"rainfall\": \" " + rain_str + " \", \"gust\": \" " + gust_str + " \", \"T1\": \" " + t1_str + " \", \"T2\": \" " + t2_str + " \", \"T3\": \" " + t3_str + " \", \"H1\": \" " + h1_str + " \", \"H2\": \" " + h2_str + " \", \"H3\": \" " + h3_str + " \", \"P1\": \" " + p1_str + " \", \"P2\": \" " + p2_str + " \", \"P3\": \" " + p3_str + " \", \"cloudcover\":\"0\", \"batteryPercentage\": \" " + battery_str + " \"}";
+      String postData = "{\"recordedAt\":\" " + Time + "\", \"light\" :\" " + light_str + "\", \"uvIntensity\": \" " + uvintensity_str + "\", \"windDirection\": \" " + winddir_str + "\", \"windSpeed\": \" " + windspeed_str + " \", \"precipitation\": \" " + rain_str + " \", \"gust\": \" " + gust_str + " \", \"T1\": \" " + t1_str + " \", \"T2\": \" " + t2_str + " \", \"T3\": \" " + t3_str + " \", \"H1\": \" " + h1_str + " \", \"H2\": \" " + h2_str + " \", \"H3\": \" " + h3_str + " \", \"P1\": \" " + p1_str + " \", \"P2\": \" " + p2_str + " \", \"P3\": \" " + p3_str + " \", \"batteryVoltage\": \" " + battery_str + " \"}";
 
       SerialMon.println("");
       SerialMon.println("\n=========================================POST Data ============================================");
