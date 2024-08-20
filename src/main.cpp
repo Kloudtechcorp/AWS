@@ -130,15 +130,15 @@ float t2, h2, p2;
 float t3, h3, p3;
 
 // AS5600 Variables
-int magnetStatus = 0;
+int magnetStatus;
 int lowbyte;
 word highbyte;
 int rawAngle;
 float degAngle;
-int correctedAngle = 0;
-float startAngle = 0;
-RTC_DATA_ATTR float rtcStartAngle = 0;
-RTC_DATA_ATTR int rtcCorrectAngle = 0;
+int correctedAngle;
+float startAngle;
+RTC_DATA_ATTR float rtcStartAngle;
+RTC_DATA_ATTR int rtcCorrectAngle;
 
 // UV Variables
 #define UVPIN 32
@@ -150,8 +150,8 @@ int UV_intensity;
 #include <BH1750.h>
 // BH1750 Name
 BH1750 lightMeter;
-float lux = 0;
-float irradiance = 0;
+float lux;
+float irradiance;
 
 // Slave Address
 #define SLAVE 0x03
@@ -546,7 +546,7 @@ void setup()
 
   // Start SD Card
   SerialMon.println("\n========================================SD Card Initializing========================================");
-  SerialMon.print("Connecting to SD Card...");
+  SerialMon.println("Connecting to SD Card...");
   spi.begin(SCK, MISO, MOSI, CS);
   rtc.begin();
   logDataToSDCard();
@@ -645,7 +645,7 @@ void loop()
       // Start RTC
       SerialMon.println("\n========================================RTC Initializing========================================");
       // Start RTC
-      SerialMon.print("Connecting to RTC...");
+      SerialMon.println("Connecting to RTC...");
       if (!rtc.begin())
       {
         Serial.println("Couldn't connect to RTC");
@@ -675,7 +675,7 @@ void loop()
       SerialMon.println("Making POST request securely");
       String contentType = "Content-Type: application/json";
 
-      String postData = "{\"recordedAt\":\" " + Time + "\", \"light\" :\" " + light_str + "\", \"uvIntensity\": \" " + uvintensity_str + "\", \"windDirection\": \" " + winddir_str + "\", \"windSpeed\": \" " + windspeed_str + " \", \"precipitation\": \" " + rain_str + " \", \"gust\": \" " + gust_str + " \", \"T1\": \" " + t1_str + " \", \"T2\": \" " + t2_str + " \", \"T3\": \" " + t3_str + " \", \"H1\": \" " + h1_str + " \", \"H2\": \" " + h2_str + " \", \"H3\": \" " + h3_str + " \", \"P1\": \" " + p1_str + " \", \"P2\": \" " + p2_str + " \", \"P3\": \" " + p3_str + " \", \"batteryVoltage\": \" " + battery_str + " \"}";
+      String postData = "{\"recordedAt\":\"" + Time + "\", \"light\":\"" + light_str + "\", \"uvIntensity\":\"" + uvintensity_str + "\", \"windDirection\":\"" + winddir_str + "\", \"windSpeed\":\"" + windspeed_str + "\", \"precipitation\":\"" + rain_str + "\", \"gust\":\"" + gust_str + "\", \"T1\":\"" + t1_str + "\", \"T2\":\"" + t2_str + "\", \"T3\":\"" + t3_str + "\", \"H1\":\"" + h1_str + "\", \"H2\":\"" + h2_str + "\", \"H3\":\"" + h3_str + "\", \"P1\":\"" + p1_str + "\", \"P2\":\"" + p2_str + "\", \"P3\":\"" + p3_str + "\", \"batteryVoltage\":\"" + battery_str + "\"}";
 
       SerialMon.println("");
       SerialMon.println("\n=========================================POST Data ============================================");
