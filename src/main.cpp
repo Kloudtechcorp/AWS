@@ -222,7 +222,7 @@ void getTime()
     if (plusIndex != -1) {
       second = second.substring(0, plusIndex);
     }
-    dateTime = day + "/" + month + "/" + year + " " + hour + ":" + minute + ":" + second;
+    dateTime = "20" + year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
     fileName = "/" + day + month + year + ".csv";
   }
   
@@ -519,7 +519,7 @@ void setup()
     uvStatus = analogRead(32);
   }
 
-  if (uvPrevStatus == uvStatus)
+  if (uvPrevStatus != uvStatus)
   {
     SerialMon.println(" Failed");
     uvintensity_str = "";
@@ -534,6 +534,13 @@ void setup()
 
   // AS5600 Connect
   SerialMon.print("AS5600: ");
+  startAngle - rtcStartAngle;
+  ReadRawAngle();
+  if (rtcStartAngle == 0) {
+    rtcStartAngle = degAngle;
+  }
+  startAngle = rtcStartAngle;
+  correctedAngle = rtcCorrectAngle;
   bool winddir_status;
   Wire.beginTransmission(0x36);
   winddir_status = (Wire.endTransmission() == 0);
@@ -700,7 +707,7 @@ void loop()
     }
   }
   // Set Timer and Sleep
-  sleeptimer= 6000 - (millis() % 60000);
+  sleeptimer= 60000 - (millis() % 60000);
   esp_sleep_enable_timer_wakeup(sleeptimer * 1000);
   esp_deep_sleep_start();
 }
