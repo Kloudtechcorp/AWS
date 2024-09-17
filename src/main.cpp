@@ -223,7 +223,7 @@ void getTime()
       second = second.substring(0, plusIndex);
     }
     dateTime = day + "/" + month + "/" + year + " " + hour + ":" + minute + ":" + second;
-    fileName = "/" + day + "/" + month + "/" + year + ".csv";
+    fileName = "/" + day + month + year + ".csv";
   }
   
 }
@@ -249,8 +249,9 @@ void logDataToSDCard()
     getTime();
     SerialMon.println("Datetime: " + dateTime);
     SerialMon.println("Filename:" + fileName);
-    sprintf(data, "%.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f", t1_str, h1_str, p1_str, t2_str, h2_str, p2_str, t3_str, h3_str, p3_str, winddir_str, light_str, uvintensity_str, rain_str, windspeed_str);
-    SerialMon.println("Data: " + String(data));
+    sprintf(data, "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", 
+            t1_str, h1_str, p1_str, t2_str, h2_str, p2_str, t3_str, h3_str, p3_str, 
+            winddir_str, light_str, uvintensity_str, rain_str, windspeed_str);    SerialMon.println("Data: " + String(data));
     String log = dateTime + data;
 
     createHeader(SD, fileName, "Date, Temperature 1, Humidity 1, Pressure 1, Temperature 2, Humidity 2, Pressure 2, Temperature 3, Humidity 3, Pressure 3, Wind Direction, Light Intensity, UV Intensity, Precipitation, Wind Speed");
