@@ -5,10 +5,6 @@
 // ESP32 Serial Monitor
 #define SerialMon Serial
 
-// Sleep Factors
-// #define uS_TO_S_FACTOR 1000000ULL /* Conversion factor for micro seconds to seconds *///( changed)
-// #define TIME_TO_SLEEP 60          /* Time ESP32 will go to sleep (in seconds) *///( changed)
-
 // SLEEP TIMER
 int sleeptimer;
 
@@ -119,7 +115,6 @@ uint16_t receivedRainCount;
 
 // Wind Speed and Gust var
 float windspeed;
-//int REV, radius = 100, period = TIME_TO_SLEEP;//( changed)
 int REV, radius = 50, period = 60;
 uint16_t receivedWindCount;
 float gust;
@@ -225,16 +220,7 @@ void getTime()
     dateTime = "20" + year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
     fileName = "/" + day + month + year + ".csv";
   }
-  
 }
-
-// String getFileName()
-// {
-//   DateTime now = rtc.now();
-//   char fileNameString[20]; // adjust the size as needed
-//   sprintf(fileNameString, "/%04d%02d%02d.csv", now.year(), now.month(), now.day());
-//   return String(fileNameString);
-// }
 
 // Saving to SD Card
 void logDataToSDCard()
@@ -291,34 +277,29 @@ void getLight()
 
 void ReadRawAngle()
 {
-  // 7:0 - bits
-  Wire.beginTransmission(0x36); // connect to the sensor
-  Wire.write(0x0D);             // figure 21 - register map: Raw angle (7:0)
-  Wire.endTransmission();       // end transmission
-  Wire.requestFrom(0x36, 1);    // request from the sensor
-  lowbyte = Wire.read();        // Reading the data after the request
-
-  // 11:8 - 4 bits
   Wire.beginTransmission(0x36);
-  Wire.write(0x0C); // figure 21 - register map: Raw angle (11:8)
+  Wire.write(0x0D);
+  Wire.endTransmission();
+  Wire.requestFrom(0x36, 1);
+  lowbyte = Wire.read();
+
+  Wire.beginTransmission(0x36);
+  Wire.write(0x0C);
   Wire.endTransmission();
   Wire.requestFrom(0x36, 1);
   highbyte = Wire.read();
 
-  // 4 bits have to be shifted to its proper place as we want to build a 12-bit number
-  highbyte = highbyte << 8;      // shifting to left
-  rawAngle = highbyte | lowbyte; // int is 16 bits (as well as the word)
+  highbyte = highbyte << 8;
+  rawAngle = highbyte | lowbyte;
   degAngle = rawAngle * 0.087890625;
 }
 
 void correctAngle()
 {
-  // recalculate angle
-  correctedAngle = 360 - degAngle + startAngle; // this tares the position
-
-  if (correctedAngle > 360) // if the calculated angle is negative, we need to "normalize" it
+  correctedAngle = 360 - degAngle + startAngle;
+  if (correctedAngle > 360)
   {
-    correctedAngle -= 360; // correction for negative numbers (i.e. -15 becomes +345)
+    correctedAngle -= 360;
   }
   rtcCorrectAngle = correctedAngle;
 }
@@ -326,12 +307,11 @@ void correctAngle()
 void getDirection()
 {
   ReadRawAngle();
-  correctAngle(); // make a reading so the degAngle gets updated
+  correctAngle();
 }
 
 void getSlave()
 {
-  // Wire.begin();
   Wire.requestFrom(SLAVE, 4);
 
   // Rain
@@ -353,13 +333,14 @@ void getSlave()
   windspeed = (2 * PI * radius * receivedWindCount * 3.6) / (period * 1000);
 
   // Gust
-  while (Wire.available())
-  {
-    byte msb = Wire.read();
-    byte lsb = Wire.read();
-    receivedGustCount = (msb << 8) | lsb;
-  }
-  gust = (2 * PI * radius * receivedGustCount * 3.6) / (3 * 1000);
+  // while (Wire.available())
+  // {
+  //   byte msb = Wire.read();
+  //   byte lsb = Wire.read();
+  //   receivedGustCount = (msb << 8) | lsb;
+  // }
+  // gust = (2 * PI * radius * receivedGustCount * 3.6) / (3 * 1000);
+  gust = 0;
 }
 
 void getBatteryVoltage()
@@ -411,19 +392,9 @@ void setup()
     return;
   }
   SerialMon.println(" >OK");
-  // SerialMon.print("Selecting Network Mode...");
-  // String result;
-  // result = modem.setNetworkMode(2);
-  // if (!modem.waitResponse(10000L) == 1)
-  // {
-  //   SerialMon.println(" >OK");
-  //   return;
-  // }
-  // SerialMon.println(" >Failed");
   AutoBaud();
   
   SerialMon.println("\n========================================Sensors Status========================================");
-  // Sensors Status
   Wire.begin(21, 22);
 
   // BME 1 Connect
@@ -594,14 +565,12 @@ void setup()
     battery_str = String(busVoltage);
   }
   delay(10);
-  
-  getTime();
-  SerialMon.println("Time: " + dateTime);
 
   // Start SD Card
   SerialMon.println("\n========================================SD Card Initializing========================================");
   SerialMon.println("Connecting to SD Card...");
   spi.begin(SCK, MISO, MOSI, CS);
+  getTime();
   logDataToSDCard();
 }
 
@@ -611,103 +580,105 @@ void loop()
   SerialMon.println("\n========================================Connecting to APN========================================");
   SerialMon.print("Connecting to ");
   SerialMon.print(apn);
-  bool connected = false;
-  int retryCount = 0;
-  const int maxRetries = 10;
-  while (!connected && retryCount < maxRetries) {
+  bool connectedAPN = false;
+  int retryCountAPN = 0;
+  const int maxRetriesAPN = 10;
+  while (!connectedAPN && retryCountAPN < maxRetriesAPN) {
     if (!modem.gprsConnect(apn, gprsUser, gprsPass))
     {
-      SerialMon.println(" >Failed");
-      retryCount++;
+      SerialMon.print(".");
+      retryCountAPN++;
       delay(1000);
     }
     else
     {
       SerialMon.println(" >OK");
-      connected = true;
-      // Server Connect
-      SerialMon.println("\n========================================Connecting to Server========================================");
-      SerialMon.print("Connecting to ");
-      SerialMon.print(server);
-      if (!base_client.connect(server, port))
-      {
-        SerialMon.println(" >Failed");
-      }
-      else
-      {
-        SerialMon.println(" >OK");
-        // Check network connection status
-        if (modem.isNetworkConnected())
-        {
-          SerialMon.println("Success to connect to network.");
-        }
-
-        // Check GPRS connection status
-        if (modem.isGprsConnected())
-        {
-          SerialMon.println("Success to connect to GPRS.");
-        }
-
-        SerialMon.println("====================================== Print results =========================================================");
-
-        // Print readings results
-        SerialMon.println("T1 = " + t1_str);
-        SerialMon.println("T2 = " + t2_str);
-        SerialMon.println("T3 = " + t3_str);
-        SerialMon.println("H1 = " + h1_str);
-        SerialMon.println("H2 = " + h2_str);
-        SerialMon.println("H3 = " + h3_str);
-        SerialMon.println("P1 = " + p1_str);
-        SerialMon.println("P2 = " + p2_str);
-        SerialMon.println("P3 = " + p3_str);
-        SerialMon.println("Light Intensity = " + light_str);
-        SerialMon.println("UV Intensity = " + uvintensity_str);
-        SerialMon.println("Wind Direction = " + winddir_str);
-        SerialMon.println("Wind Speed = " + windspeed_str);
-        SerialMon.println("Rain = " + rain_str);
-        SerialMon.println("Gust = " + gust_str);
-        SerialMon.println("Battery Voltage = " + battery_str);
-        SerialMon.println("Time: " + dateTime);
-
-        SerialMon.println("\n========================================HTTP Post Request========================================");
-        SerialMon.println("Performing HTTP POST request...");
-        client.connectionKeepAlive();
-        SerialMon.print("Connecting to ");
-        SerialMon.println(server);
-
-        SerialMon.println("Making POST request securely");
-        String contentType = "Content-Type: application/json";
-
-        String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + light_str + "\", \"uvIntensity\":\"" + uvintensity_str + "\", \"windDirection\":\"" + winddir_str + "\", \"windSpeed\":\"" + windspeed_str + "\", \"precipitation\":\"" + rain_str + "\", \"gust\":\"" + gust_str + "\", \"T1\":\"" + t1_str + "\", \"T2\":\"" + t2_str + "\", \"T3\":\"" + t3_str + "\", \"H1\":\"" + h1_str + "\", \"H2\":\"" + h2_str + "\", \"H3\":\"" + h3_str + "\", \"P1\":\"" + p1_str + "\", \"P2\":\"" + p2_str + "\", \"P3\":\"" + p3_str + "\", \"batteryVoltage\":\"" + battery_str + "\"}";
-
-        SerialMon.println("");
-        SerialMon.println("\n=========================================POST Data ============================================");
-        SerialMon.println(postData);
-
-        int postDataLength = postData.length();
-        client.sendHeader("Content-Length", postDataLength);
-        client.sendHeader("Connection", "Close");
-        int posting = client.post(resource, contentType, postData);
-        SerialMon.print("Reply:");
-        SerialMon.println(posting);
-        int status_code = client.responseStatusCode();
-        String response = client.responseBody();
-
-        SerialMon.print("Status code: ");
-        SerialMon.println(status_code);
-        SerialMon.print("Response: ");
-        SerialMon.println(response);
-
-        SerialMon.println("\n========================================Closing Client========================================");
-        client.stop();
-        SerialMon.println(F("Server disconnected"));
-        modem.gprsDisconnect();
-        SerialMon.println(F("GPRS disconnected"));
-      }
+      connectedAPN = true;
     }
   }
+  // Server Connect
+  bool connectedServer = false;
+  int retryCountServer = 0;
+  const int maxRetriesServer = 10;
+  while (connectedAPN && !connectedServer && retryCountServer < maxRetriesServer)
+  {
+    SerialMon.println("\n========================================Connecting to Server========================================");
+    SerialMon.print("Connecting to ");
+    SerialMon.print(server);
+    if (!base_client.connect(server, port))
+    {
+      SerialMon.print(".");
+      retryCountServer++;
+      delay(1000);
+    }
+    else
+    {
+      SerialMon.println(" >OK");
+      connectedServer = true;
+    }
+  }
+
+  if (connectedAPN && connectedServer)
+  {
+    SerialMon.println("\n====================================== Print results =========================================================");
+
+    // Print readings results
+    SerialMon.println("T1 = " + t1_str);
+    SerialMon.println("T2 = " + t2_str);
+    SerialMon.println("T3 = " + t3_str);
+    SerialMon.println("H1 = " + h1_str);
+    SerialMon.println("H2 = " + h2_str);
+    SerialMon.println("H3 = " + h3_str);
+    SerialMon.println("P1 = " + p1_str);
+    SerialMon.println("P2 = " + p2_str);
+    SerialMon.println("P3 = " + p3_str);
+    SerialMon.println("Light Intensity = " + light_str);
+    SerialMon.println("UV Intensity = " + uvintensity_str);
+    SerialMon.println("Wind Direction = " + winddir_str);
+    SerialMon.println("Wind Speed = " + windspeed_str);
+    SerialMon.println("Rain = " + rain_str);
+    SerialMon.println("Gust = " + gust_str);
+    SerialMon.println("Battery Voltage = " + battery_str);
+    SerialMon.println("Time: " + dateTime);
+
+    SerialMon.println("\n========================================HTTP Post Request========================================");
+    SerialMon.println("Performing HTTP POST request...");
+    client.connectionKeepAlive();
+    SerialMon.print("Connecting to ");
+    SerialMon.println(server);
+
+    SerialMon.println("Making POST request securely");
+    String contentType = "Content-Type: application/json";
+
+    String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + light_str + "\", \"uvIntensity\":\"" + uvintensity_str + "\", \"windDirection\":\"" + winddir_str + "\", \"windSpeed\":\"" + windspeed_str + "\", \"precipitation\":\"" + rain_str + "\", \"gust\":\"" + gust_str + "\", \"T1\":\"" + t1_str + "\", \"T2\":\"" + t2_str + "\", \"T3\":\"" + t3_str + "\", \"H1\":\"" + h1_str + "\", \"H2\":\"" + h2_str + "\", \"H3\":\"" + h3_str + "\", \"P1\":\"" + p1_str + "\", \"P2\":\"" + p2_str + "\", \"P3\":\"" + p3_str + "\", \"batteryVoltage\":\"" + battery_str + "\"}";
+
+    SerialMon.println("");
+    SerialMon.println("\n=========================================POST Data ============================================");
+    SerialMon.println(postData);
+
+    int postDataLength = postData.length();
+    client.sendHeader("Content-Length", postDataLength);
+    client.sendHeader("Connection", "Close");
+    int posting = client.post(resource, contentType, postData);
+    SerialMon.print("Reply:");
+    SerialMon.println(posting);
+    int status_code = client.responseStatusCode();
+    String response = client.responseBody();
+
+    SerialMon.print("Status code: ");
+    SerialMon.println(status_code);
+    SerialMon.print("Response: ");
+    SerialMon.println(response);
+
+    SerialMon.println("\n========================================Closing Client========================================");
+    client.stop();
+    SerialMon.println(F("Server disconnected"));
+    modem.gprsDisconnect();
+    SerialMon.println(F("GPRS disconnected"));
+    SerialMon.println();
+  }
   // Set Timer and Sleep
-  sleeptimer= 60000 - (millis() % 60000);
+  sleeptimer = 60000 - (millis() % 60000);
   esp_sleep_enable_timer_wakeup(sleeptimer * 1000);
   esp_deep_sleep_start();
 }
