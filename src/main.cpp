@@ -600,14 +600,14 @@ void loop()
     }
   }
   // Server Connect
+  SerialMon.println("\n========================================Connecting to Server========================================");
+  SerialMon.print("Connecting to ");
+  SerialMon.print(server);
   bool connectedServer = false;
   int retryCountServer = 0;
   const int maxRetriesServer = 10;
   while (connectedAPN && !connectedServer && retryCountServer < maxRetriesServer)
   {
-    SerialMon.println("\n========================================Connecting to Server========================================");
-    SerialMon.print("Connecting to ");
-    SerialMon.print(server);
     if (!base_client.connect(server, port))
     {
       SerialMon.print(".");
@@ -680,6 +680,7 @@ void loop()
     SerialMon.println(F("GPRS disconnected"));
     SerialMon.println();
   }
+  SerialMon.print("\nSleeping...\n");
   // Set Timer and Sleep
   sleeptimer = 60000 - (millis() % 60000);
   esp_sleep_enable_timer_wakeup(sleeptimer * 1000);
