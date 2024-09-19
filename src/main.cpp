@@ -48,6 +48,9 @@ const char gprsPass[] = "";
 const char server[] = "v1server.kloudtechsea.com"; // Change this to your selection
 const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
 
+// const char server[] = "development.kloudtechsea.com"; // Change this to your selection
+// const char resource[] = "https://development.kloudtechsea.com/Kloudtrackv4/weather/WeatherReadings/insert-data.php";
+
 const int port = 443;
 unsigned long timeout;
 
@@ -94,7 +97,7 @@ RTC_DATA_ATTR float rtcStartAngle;
 RTC_DATA_ATTR int rtcCorrectAngle;
 
 // UV Variables
-#define UVPIN 32
+#define uvPin 32
 float sensorVoltage;
 float sensorValue;
 int uvIntensity;
@@ -265,7 +268,7 @@ void getBME(Adafruit_BME280 bme, int bus, float *temp, float *hum, float *pres)
 
 void getUV()
 {
-  sensorValue = analogRead(UVPIN);
+  sensorValue = analogRead(uvPin);
   sensorVoltage = sensorValue * (3.3 / 4095);
   uvIntensity = sensorVoltage * 1000;
 }
@@ -375,9 +378,9 @@ void setup()
 
   // Initialize GSM
   SerialMon.println("\n========================================GSM Initializing========================================");
-  SerialMon.println("Starting GSM...");
+  SerialMon.print("Starting GSM...");
   GSMinit();
-  SerialMon.print("Waiting for 3s...");
+  // SerialMon.print("Waiting for 3s...");
   delay(3000);
   SerialMon.println(" >OK");
 
