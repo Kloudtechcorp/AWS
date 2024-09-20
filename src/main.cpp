@@ -1,252 +1,8 @@
 #include <Arduino.h>
 #include <math.h>
 #include <Wire.h>
-
-// ESP32 Serial Monitor
-#define SerialMon Serial
-
-// SLEEP TIMER
-int sleeptimer;
-
-// GSM Library
-#define TINY_GSM_MODEM_SIM7600
-// GSM Serial Monitor
-HardwareSerial SerialAT(1);
-
-// GSM RX/TX Buffer - GSM Intiation
-#if !defined(TINY_GSM_RX_BUFFER)
-#define TINY_GSM_RX_BUFFER 1024
-#endif
-#define TINY_GSM_YIELD() \
-  {                      \
-    delay(2);            \
-  }
-
-// GSM and httpclient libraries
-#include <TinyGsmClient.h>
-#include <ArduinoHttpClient.h>
-#include "SSLClient.h"
-
-TinyGsm modem(SerialAT);
-
-// GSM Pins - GSM Intiation
-#define GSM_PIN "0000"
-#define UART_BAUD 115200
-#define PIN_DTR 25
-#define PIN_TX 26
-#define PIN_RX 27
-#define PWR_PIN 4
-#define PIN_RI 33
-#define RESET 5
-#define BAT_ADC 35
-#define BAT_EN 12
-
-// Website Credentials
-const char apn[] = "smartlte";
-const char gprsUser[] = "";
-const char gprsPass[] = "";
-// Kloudtrackdev
-// const char server[] = "development.kloudtechsea.com"; 
-// const char resource[] = "https://development.kloudtechsea.com/Kloudtrackv4/weather/WeatherReadings/insert-data.php";
-// v1server Serial 1
-// const char server[] = "v1server.kloudtechsea.com"; 
-// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
-// v1server Serial 2
-const char server[] = "v1server.kloudtechsea.com"; 
-const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=b1aceef9-fb78-405c-b3e3-3a6be96f6932";
-// v1server Serial 3
-// const char server[] = "v1server.kloudtechsea.com"; 
-// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=f0c1169d-6f2a-44c9-a96d-143b77643c9d";
-// v1server Serial 4
-// const char server[] = "v1server.kloudtechsea.com"; 
-// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=816a2a9a-5f29-4d47-a545-d0ab0e97ffdd";
-
-const int port = 443;
-unsigned long timeout;
-
-// HTTPS Transport
-TinyGsmClient base_client(modem, 0);
-SSLClient secure_layer(&base_client);
-HttpClient client = HttpClient(secure_layer, server, port);
-
-// SD Card Definitions
-#include "FS.h"
-#include "SD.h"
-#include "SPI.h"
-#define SCK 14
-#define MISO 2
-#define MOSI 15
-#define CS 13
-SPIClass spi = SPIClass(VSPI);
-char data[100];
-
-// Time
-String response, dateTime, year, month, day, hour, minute, second, fileName;
-
-// BME280 Library and Variables
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BME280.h>
-Adafruit_BME280 bme1;
-Adafruit_BME280 bme2;
-Adafruit_BME280 bme3;
-float t1, h1, p1, t2, h2, p2, t3, h3, p3;
-
-// AS5600 Variables
-int magnetStatus, lowbyte, rawAngle, correctedAngle;
-word highbyte;
-float degAngle, startAngle;
-RTC_DATA_ATTR float rtcStartAngle;
-RTC_DATA_ATTR int rtcCorrectAngle;
-
-// UV Variables
-#define uvPin 32
-float sensorVoltage, sensorValue;
-int uvIntensity;
-
-// BH1750 Library and Variables
-#include <BH1750.h>
-BH1750 lightMeter;
-float lux, irradiance;
-
-// Slave Address
-#define SLAVE 0x03
-
-// Rain Gauge
-float tipValue = 0.1099, rain;
-uint16_t receivedRainCount;
-
-// Wind Speed and Gust var
-float windspeed;
-int REV, radius = 50, period = 60;
-uint16_t receivedWindCount;
-float gust;
-uint16_t receivedGustCount;
-
-// Battery Voltage Library and Variable
-#include <Adafruit_INA219.h>
-Adafruit_INA219 ina219;
-float busVoltage;
-
-// String Parameters
-String t1_str = "";
-String h1_str = "";
-String p1_str = "";
-String t2_str = "";
-String h2_str = "";
-String p2_str = "";
-String t3_str = "";
-String h3_str = "";
-String p3_str = "";
-String light_str = "";
-String uvintensity_str = "";
-String winddir_str = "";
-String windspeed_str = "";
-String rain_str = "";
-String gust_str = "";
-String battery_str = "";
-
-// SD Card Parameters
-void appendFile(fs::FS &fs, String path, String message)
-{
-  File file = fs.open(path, FILE_APPEND);
-  file.close();
-}
-
-void createHeader(fs::FS &fs, String path, String message)
-{
-  File file = fs.open(path);
-  if (!file)
-  {
-    File file = fs.open(path, FILE_APPEND);
-    return;
-  }
-  file.close();
-}
-
-uint32_t AutoBaud() {
-  static uint32_t rates[] = {115200, 9600, 57600,  38400, 19200,  74400, 74880,
-                              230400, 460800, 2400,  4800,  14400, 28800
-                            };
-  for (uint8_t i = 0; i < sizeof(rates) / sizeof(rates[0]); i++) {
-    uint32_t rate = rates[i];
-    // Serial.printf("Trying baud rate %u\n", rate);
-    SerialAT.updateBaudRate(rate);
-    delay(10);
-    for (int j = 0; j < 10; j++) {
-      SerialAT.print("AT\r\n");
-      String input = SerialAT.readString();
-      if (input.indexOf("OK") >= 0) {
-        // Serial.printf("Modem responded at rate:%u\n", rate);
-        return rate;
-      }
-    }
-  }
-  SerialAT.updateBaudRate(115200);
-  return 0;
-}
-
-void getTime()
-{
-  response = "";
-  SerialAT.print("AT+CCLK?\r\n");
-  delay(100);
-  response = SerialAT.readString();
-  if (response != "") {
-    int startIndex = response.indexOf("+CCLK: \"");
-    int endIndex = response.indexOf("\"", startIndex + 8);
-    String dateTimeString = response.substring(startIndex + 8, endIndex);
-
-    int dayIndex = dateTimeString.indexOf("/");
-    int monthIndex = dateTimeString.indexOf("/", dayIndex + 1);
-    int yearIndex = dateTimeString.indexOf(",");
-
-    String year = dateTimeString.substring(0, dayIndex);
-    String month = dateTimeString.substring(dayIndex + 1, monthIndex);
-    String day = dateTimeString.substring(monthIndex + 1, yearIndex);
-
-    String timeString = dateTimeString.substring(yearIndex + 1);
-
-    int hourIndex = timeString.indexOf(":");
-    int minuteIndex = timeString.indexOf(":", hourIndex + 1);
-
-    String hour = timeString.substring(0, hourIndex);
-    String minute = timeString.substring(hourIndex + 1, minuteIndex);
-    String second = timeString.substring(minuteIndex + 1);
-
-    int plusIndex = second.indexOf("+");
-    if (plusIndex != -1) {
-      second = second.substring(0, plusIndex);
-    }
-    dateTime = "20" + year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
-    fileName = "/" + day + month + year + ".csv";
-  }
-}
-
-// Saving to SD Card
-void logDataToSDCard()
-{
-  if (!SD.begin(CS, spi))
-  {
-    SerialMon.println(" >Failed. Skipping SD Storage");
-  }
-  else
-  {
-    SerialMon.println("SD Card Initiation Complete");
-    getTime();
-    SerialMon.println("Datetime: " + dateTime);
-    SerialMon.println("Filename:" + fileName);
-    sprintf(data, "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", 
-            t1_str, h1_str, p1_str, t2_str, h2_str, p2_str, t3_str, h3_str, p3_str, 
-            winddir_str, light_str, uvintensity_str, rain_str, windspeed_str);    SerialMon.println("Data: " + String(data));
-    String log = dateTime + data;
-
-    createHeader(SD, fileName, "Date, Temperature 1, Humidity 1, Pressure 1, Temperature 2, Humidity 2, Pressure 2, Temperature 3, Humidity 3, Pressure 3, Wind Direction, Light Intensity, UV Intensity, Precipitation, Wind Speed");
-    appendFile(SD, fileName, log);
-
-    SerialMon.println("Data logged successfully.");
-    SerialMon.println();
-  }
-}
+#include <utilities.h>
+#include <sensors.h>
 
 void select_bus(uint8_t bus)
 {
@@ -263,16 +19,20 @@ void getBME(Adafruit_BME280 bme, int bus, float *temp, float *hum, float *pres)
   *pres = bme.readPressure() / 100.0F;
 }
 
-void getUV()
+String getUV()
 {
   sensorValue = analogRead(uvPin);
   sensorVoltage = sensorValue * (3.3 / 4095);
   uvIntensity = sensorVoltage * 1000;
+  uvIntensityStr = String(uvIntensity);
+  return uvIntensityStr;
 }
 
-void getLight()
+String getLight()
 {
   lux = lightMeter.readLightLevel();
+  lightStr = String(lux);
+  return lightStr;
 }
 
 void ReadRawAngle()
@@ -302,12 +62,18 @@ void correctAngle()
     correctedAngle -= 360;
   }
   rtcCorrectAngle = correctedAngle;
+  if (correctedAngle == 360)
+  {
+    correctedAngle = 0;
+  }
 }
 
-void getDirection()
+String getDirection()
 {
   ReadRawAngle();
   correctAngle();
+  windDirStr = String(correctedAngle);
+  return windDirStr;
 }
 
 void getSlave()
@@ -343,9 +109,10 @@ void getSlave()
   gust = 0;
 }
 
-void getBatteryVoltage()
+String getBatteryVoltage()
 {
-  busVoltage = ina219.getBusVoltage_V();
+  batteryStr = String(ina219.getBusVoltage_V());
+  return batteryStr;
 }
 
 void GSMinit()
@@ -412,9 +179,9 @@ void setup()
   {
     SerialMon.println(" OK");
     getBME(bme1, 2, &t1, &h1, &p1);
-    t1_str = String(t1);
-    h1_str = String(h1);
-    p1_str = String(p1);
+    t1Str = String(t1);
+    h1Str = String(h1);
+    p1Str = String(p1);
   }
   delay(10);
   // BME 2 Connect
@@ -430,9 +197,9 @@ void setup()
   {
     SerialMon.println(" OK");
     getBME(bme2, 3, &t2, &h2, &p2);
-    t2_str = String(t2);
-    h2_str = String(h2);
-    p2_str = String(p2);
+    t2Str = String(t2);
+    h2Str = String(h2);
+    p2Str = String(p2);
   }
   delay(10);
   // BME 3 Connect
@@ -448,9 +215,9 @@ void setup()
   {
     SerialMon.println(" OK");
     getBME(bme3, 4, &t3, &h3, &p3);
-    t3_str = String(t3);
-    h3_str = String(h3);
-    p3_str = String(p3);
+    t3Str = String(t3);
+    h3Str = String(h3);
+    p3Str = String(p3);
   }
   delay(10);
 
@@ -466,7 +233,6 @@ void setup()
   {
     SerialMon.println(" OK");
     getLight();
-    light_str = String(lux);
   }
   delay(10);
 
@@ -490,7 +256,6 @@ void setup()
   {
     SerialMon.println(" OK");
     getUV();
-    uvintensity_str = String(uvIntensity);
   }
   delay(10);
 
@@ -514,7 +279,6 @@ void setup()
   {
     SerialMon.println(" OK");
     getDirection();
-    winddir_str = String(correctedAngle);
   }
 
   // Slave Connect
@@ -530,9 +294,9 @@ void setup()
   {
     SerialMon.println(" OK");
     getSlave();
-    windspeed_str = String(windspeed);
-    rain_str = String(rain);
-    gust_str = String(gust);
+    windSpeedStr = String(windspeed);
+    rainStr = String(rain);
+    gustStr = String(gust);
   }
   delay(10);
 
@@ -548,7 +312,6 @@ void setup()
   {
     SerialMon.println(" OK");
     getBatteryVoltage();
-    battery_str = String(busVoltage);
   }
   delay(10);
 
@@ -564,8 +327,7 @@ void loop()
 {
   // APN Connect
   SerialMon.println("\n========================================Connecting to APN========================================");
-  SerialMon.print("Connecting to ");
-  SerialMon.print(apn);
+  SerialMon.printf("Connecting to %s", apn);
   bool connectedAPN = false;
   int retryCountAPN = 0;
   const int maxRetriesAPN = 10;
@@ -584,8 +346,7 @@ void loop()
   }
   // Server Connect
   SerialMon.println("\n========================================Connecting to Server========================================");
-  SerialMon.print("Connecting to ");
-  SerialMon.print(server);
+  SerialMon.printf("Connecting to %s", server);
   bool connectedServer = false;
   int retryCountServer = 0;
   const int maxRetriesServer = 10;
@@ -609,36 +370,34 @@ void loop()
     SerialMon.println("\n====================================== Print results =========================================================");
 
     // Print readings results
-    SerialMon.println("T1 = " + t1_str);
-    SerialMon.println("T2 = " + t2_str);
-    SerialMon.println("T3 = " + t3_str);
-    SerialMon.println("H1 = " + h1_str);
-    SerialMon.println("H2 = " + h2_str);
-    SerialMon.println("H3 = " + h3_str);
-    SerialMon.println("P1 = " + p1_str);
-    SerialMon.println("P2 = " + p2_str);
-    SerialMon.println("P3 = " + p3_str);
-    SerialMon.println("Light Intensity = " + light_str);
-    SerialMon.println("UV Intensity = " + uvintensity_str);
-    SerialMon.println("Wind Direction = " + winddir_str);
-    SerialMon.println("Wind Speed = " + windspeed_str);
-    SerialMon.println("Rain = " + rain_str);
-    SerialMon.println("Gust = " + gust_str);
-    SerialMon.println("Battery Voltage = " + battery_str);
+    SerialMon.println("T1 = " + t1Str);
+    SerialMon.println("T2 = " + t2Str);
+    SerialMon.println("T3 = " + t3Str);
+    SerialMon.println("H1 = " + h1Str);
+    SerialMon.println("H2 = " + h2Str);
+    SerialMon.println("H3 = " + h3Str);
+    SerialMon.println("P1 = " + p1Str);
+    SerialMon.println("P2 = " + p2Str);
+    SerialMon.println("P3 = " + p3Str);
+    SerialMon.println("Light Intensity = " + lightStr);
+    SerialMon.println("UV Intensity = " + uvIntensityStr);
+    SerialMon.println("Wind Direction = " + windDirStr);
+    SerialMon.println("Wind Speed = " + windSpeedStr);
+    SerialMon.println("Rain = " + rainStr);
+    SerialMon.println("Gust = " + gustStr);
+    SerialMon.println("Battery Voltage = " + batteryStr);
     SerialMon.println("Time: " + dateTime);
 
     SerialMon.println("\n========================================HTTP Post Request========================================");
     SerialMon.println("Performing HTTP POST request...");
     client.connectionKeepAlive();
-    SerialMon.print("Connecting to ");
-    SerialMon.println(server);
+    SerialMon.printf("Connecting to %s", server);
 
     SerialMon.println("Making POST request securely");
     String contentType = "Content-Type: application/json";
 
-    String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + light_str + "\", \"uvIntensity\":\"" + uvintensity_str + "\", \"windDirection\":\"" + winddir_str + "\", \"windSpeed\":\"" + windspeed_str + "\", \"precipitation\":\"" + rain_str + "\", \"gust\":\"" + gust_str + "\", \"T1\":\"" + t1_str + "\", \"T2\":\"" + t2_str + "\", \"T3\":\"" + t3_str + "\", \"H1\":\"" + h1_str + "\", \"H2\":\"" + h2_str + "\", \"H3\":\"" + h3_str + "\", \"P1\":\"" + p1_str + "\", \"P2\":\"" + p2_str + "\", \"P3\":\"" + p3_str + "\", \"batteryVoltage\":\"" + battery_str + "\"}";
+    String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + lightStr + "\", \"uvIntensity\":\"" + uvIntensityStr + "\", \"windDirection\":\"" + windDirStr + "\", \"windSpeed\":\"" + windSpeedStr + "\", \"precipitation\":\"" + rainStr + "\", \"gust\":\"" + gustStr + "\", \"T1\":\"" + t1Str + "\", \"T2\":\"" + t2Str + "\", \"T3\":\"" + t3Str + "\", \"H1\":\"" + h1Str + "\", \"H2\":\"" + h2Str + "\", \"H3\":\"" + h3Str + "\", \"P1\":\"" + p1Str + "\", \"P2\":\"" + p2Str + "\", \"P3\":\"" + p3Str + "\", \"batteryVoltage\":\"" + batteryStr + "\"}";
 
-    SerialMon.println("");
     SerialMon.println("\n=========================================POST Data ============================================");
     SerialMon.println(postData);
 
@@ -646,22 +405,18 @@ void loop()
     client.sendHeader("Content-Length", postDataLength);
     client.sendHeader("Connection", "Close");
     int posting = client.post(resource, contentType, postData);
-    SerialMon.print("Reply:");
-    SerialMon.println(posting);
+    SerialMon.printf("Reply: %d\n", posting);
     int status_code = client.responseStatusCode();
     String response = client.responseBody();
 
-    SerialMon.print("Status code: ");
-    SerialMon.println(status_code);
-    SerialMon.print("Response: ");
-    SerialMon.println(response);
+    SerialMon.printf("Status code: %d\n", status_code);
+    SerialMon.println("Response: " + response);
 
     SerialMon.println("\n========================================Closing Client========================================");
     client.stop();
     SerialMon.println(F("Server disconnected"));
     modem.gprsDisconnect();
     SerialMon.println(F("GPRS disconnected"));
-    SerialMon.println();
   }
   SerialMon.print("\nSleeping...\n");
   // Set Timer and Sleep
