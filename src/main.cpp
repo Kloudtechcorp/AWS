@@ -42,14 +42,24 @@ TinyGsm modem(SerialAT);
 #define BAT_EN 12
 
 // Website Credentials
-const char apn[] = "smartlte"; // Change this to your Provider details
+const char apn[] = "smartlte";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-const char server[] = "v1server.kloudtechsea.com"; // Change this to your selection
-const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
-
-// const char server[] = "development.kloudtechsea.com"; // Change this to your selection
+// Kloudtrackdev
+// const char server[] = "development.kloudtechsea.com"; 
 // const char resource[] = "https://development.kloudtechsea.com/Kloudtrackv4/weather/WeatherReadings/insert-data.php";
+// v1server Serial 1
+// const char server[] = "v1server.kloudtechsea.com"; 
+// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
+// v1server Serial 2
+const char server[] = "v1server.kloudtechsea.com"; 
+const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=b1aceef9-fb78-405c-b3e3-3a6be96f6932";
+// v1server Serial 3
+// const char server[] = "v1server.kloudtechsea.com"; 
+// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=f0c1169d-6f2a-44c9-a96d-143b77643c9d";
+// v1server Serial 4
+// const char server[] = "v1server.kloudtechsea.com"; 
+// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=816a2a9a-5f29-4d47-a545-d0ab0e97ffdd";
 
 const int port = 443;
 unsigned long timeout;
@@ -71,43 +81,32 @@ SPIClass spi = SPIClass(VSPI);
 char data[100];
 
 // Time
-String response, dateTime, year, month, day, hour, minute, second;
-String fileName;
+String response, dateTime, year, month, day, hour, minute, second, fileName;
 
-// BME280 Library
+// BME280 Library and Variables
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 Adafruit_BME280 bme1;
 Adafruit_BME280 bme2;
 Adafruit_BME280 bme3;
-// BME280 Variables
-float t1, h1, p1;
-float t2, h2, p2;
-float t3, h3, p3;
+float t1, h1, p1, t2, h2, p2, t3, h3, p3;
 
 // AS5600 Variables
-int magnetStatus;
-int lowbyte;
+int magnetStatus, lowbyte, rawAngle, correctedAngle;
 word highbyte;
-int rawAngle;
-float degAngle;
-int correctedAngle;
-float startAngle;
+float degAngle, startAngle;
 RTC_DATA_ATTR float rtcStartAngle;
 RTC_DATA_ATTR int rtcCorrectAngle;
 
 // UV Variables
 #define uvPin 32
-float sensorVoltage;
-float sensorValue;
+float sensorVoltage, sensorValue;
 int uvIntensity;
 
-// BH1750 Library
+// BH1750 Library and Variables
 #include <BH1750.h>
-// BH1750 Name
 BH1750 lightMeter;
-float lux;
-float irradiance;
+float lux, irradiance;
 
 // Slave Address
 #define SLAVE 0x03
@@ -123,29 +122,28 @@ uint16_t receivedWindCount;
 float gust;
 uint16_t receivedGustCount;
 
-// Battery Voltage Library
+// Battery Voltage Library and Variable
 #include <Adafruit_INA219.h>
 Adafruit_INA219 ina219;
-// Battery Voltage Variables
 float busVoltage;
 
 // String Parameters
-String t1_str;
-String h1_str;
-String p1_str;
-String t2_str;
-String h2_str;
-String p2_str;
-String t3_str;
-String h3_str;
-String p3_str;
-String light_str;
-String uvintensity_str;
-String winddir_str;
-String windspeed_str;
-String rain_str;
-String gust_str;
-String battery_str;
+String t1_str = "";
+String h1_str = "";
+String p1_str = "";
+String t2_str = "";
+String h2_str = "";
+String p2_str = "";
+String t3_str = "";
+String h3_str = "";
+String p3_str = "";
+String light_str = "";
+String uvintensity_str = "";
+String winddir_str = "";
+String windspeed_str = "";
+String rain_str = "";
+String gust_str = "";
+String battery_str = "";
 
 // SD Card Parameters
 void appendFile(fs::FS &fs, String path, String message)
@@ -186,7 +184,6 @@ uint32_t AutoBaud() {
   SerialAT.updateBaudRate(115200);
   return 0;
 }
-
 
 void getTime()
 {
@@ -380,7 +377,6 @@ void setup()
   SerialMon.println("\n========================================GSM Initializing========================================");
   SerialMon.print("Starting GSM...");
   GSMinit();
-  // SerialMon.print("Waiting for 3s...");
   delay(3000);
   SerialMon.println(" >OK");
 
@@ -392,6 +388,9 @@ void setup()
   if (!modem.init())
   {
     SerialMon.println(" >Failed (Restarting in 10s)");
+    delay(10000);
+    modem.restart();
+    GSMinit();
     return;
   }
   SerialMon.println(" >OK");
@@ -408,9 +407,6 @@ void setup()
   if (!BME1_status)
   {
     SerialMon.println(" Failed");
-    t1_str = "";
-    h1_str = "";
-    p1_str = "";
   }
   else
   {
@@ -429,9 +425,6 @@ void setup()
   if (!BME2_status)
   {
     SerialMon.println(" Failed");
-    t2_str = "";
-    h2_str = "";
-    p2_str = "";
   }
   else
   {
@@ -450,9 +443,6 @@ void setup()
   if (!BME3_status)
   {
     SerialMon.println(" Failed");
-    t3_str = "";
-    h3_str = "";
-    p3_str = "";
   }
   else
   {
@@ -471,7 +461,6 @@ void setup()
   if (!light_status)
   {
     SerialMon.println(" Failed");
-    light_str = "";
   }
   else
   {
@@ -496,7 +485,6 @@ void setup()
   if (uvPrevStatus != uvStatus)
   {
     SerialMon.println(" Failed");
-    uvintensity_str = "";
   }
   else
   {
@@ -521,7 +509,6 @@ void setup()
   if (!winddir_status)
   {
     SerialMon.println(" Failed");
-    winddir_str = "";
   }
   else
   {
@@ -538,9 +525,6 @@ void setup()
   if (!Slave_status)
   {
     SerialMon.println(" Failed");
-    windspeed_str = "";
-    rain_str = "";
-    gust_str = "";
   }
   else
   {
@@ -559,7 +543,6 @@ void setup()
   if (!battery_status)
   {
     SerialMon.println(" Failed");
-    battery_str = "";
   }
   else
   {
