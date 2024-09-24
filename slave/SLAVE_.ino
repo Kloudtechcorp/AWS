@@ -5,10 +5,10 @@
 #define SLAVE_ADDR1 0x03
 
 
-int prevBTN1 = 0, newBTN1 = 0;
+int prevBTN1 = 1, newBTN1 = 0;
 uint16_t RainCounter;
 
-int prevBTN2 = 0, newBTN2 = 0;
+int prevBTN2 = 1, newBTN2 = 0;
 uint16_t WindCounter;
 
 void setup() 
@@ -52,4 +52,6 @@ void requestEvent()
   Wire.write((byte)(RainCounter & 0xFF));
   Wire.write((byte)(WindCounter >> 8));
   Wire.write((byte)(WindCounter & 0xFF));
+  RainCounter = 0;
+  WindCounter = 0;
 }

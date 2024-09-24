@@ -44,14 +44,17 @@ const char gprsPass[] = "";
 // const char server[] = "v1server.kloudtechsea.com"; 
 // const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
 // v1server Serial 2
-const char server[] = "v1server.kloudtechsea.com"; 
-const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=b1aceef9-fb78-405c-b3e3-3a6be96f6932";
+// const char server[] = "v1server.kloudtechsea.com"; 
+// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=b1aceef9-fb78-405c-b3e3-3a6be96f6932";
 // v1server Serial 3
 // const char server[] = "v1server.kloudtechsea.com"; 
 // const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=f0c1169d-6f2a-44c9-a96d-143b77643c9d";
 // v1server Serial 4
 // const char server[] = "v1server.kloudtechsea.com"; 
 // const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=816a2a9a-5f29-4d47-a545-d0ab0e97ffdd";
+// New Server
+const char server[] = "app.kloudtechsea.com";
+const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=CO07-AROL-9OIS-HP40";
 
 TinyGsm modem(SerialAT);
 const int port = 443;
