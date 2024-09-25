@@ -1,5 +1,0 @@
-node_modules/
-.DS_Store
-*.gch
-build_wrapper_output_directory/
-**/build_wrapper_output_directory/
