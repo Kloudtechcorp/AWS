@@ -52,9 +52,21 @@ const char gprsPass[] = "";
 // v1server Serial 4
 // const char server[] = "v1server.kloudtechsea.com"; 
 // const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=816a2a9a-5f29-4d47-a545-d0ab0e97ffdd";
-// New Server
+// Test Server
+// const char server[] = "app.kloudtechsea.com";
+// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=CO07-AROL-9OIS-HP40";
+// AWS Server 1 - Axe
+// const char server[] = "app.kloudtechsea.com";
+// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=99NL-VII0-BCFW-TUO1";
+// AWS Server 2 - Lina
+// const char server[] = "app.kloudtechsea.com";
+// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=RQCA-CCN4-5GY2-UPVZ";
+// AWS Server 3 - Meepo
 const char server[] = "app.kloudtechsea.com";
-const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=CO07-AROL-9OIS-HP40";
+const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=AM4Z-FYW6-MT04-FGME";
+// AWS Server 4 - Invoker
+// const char server[] = "app.kloudtechsea.com";
+// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=7JRE-I894-CXIA-01FM";
 
 TinyGsm modem(SerialAT);
 const int port = 443;
