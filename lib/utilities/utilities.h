@@ -41,8 +41,8 @@ const char gprsPass[] = "";
 // const char server[] = "development.kloudtechsea.com"; 
 // const char resource[] = "https://development.kloudtechsea.com/Kloudtrackv4/weather/WeatherReadings/insert-data.php";
 // v1server Serial 1
-// const char server[] = "v1server.kloudtechsea.com"; 
-// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
+const char server[] = "v1server.kloudtechsea.com"; 
+const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
 // v1server Serial 2
 // const char server[] = "v1server.kloudtechsea.com"; 
 // const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=b1aceef9-fb78-405c-b3e3-3a6be96f6932";
@@ -62,8 +62,8 @@ const char gprsPass[] = "";
 // const char server[] = "app.kloudtechsea.com";
 // const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=RQCA-CCN4-5GY2-UPVZ";
 // AWS Server 3 - Meepo
-const char server[] = "app.kloudtechsea.com";
-const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=AM4Z-FYW6-MT04-FGME";
+// const char server[] = "app.kloudtechsea.com";
+// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=AM4Z-FYW6-MT04-FGME";
 // AWS Server 4 - Invoker
 // const char server[] = "app.kloudtechsea.com";
 // const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=7JRE-I894-CXIA-01FM";
@@ -113,18 +113,32 @@ SPIClass spi = SPIClass(VSPI);
 char data[100];
 
 // SD Card Parameters
-void appendFile(fs::FS &fs, String path, String message) {
-  File file = fs.open(path, FILE_APPEND); file.close();
+void appendFile(fs::FS &fs, String path, String message)
+{
+  SerialMon.printf("Appending to file: %s\n", path);
+  File file = fs.open(path, FILE_APPEND);
+  if (!file) { SerialMon.println("Failed to open file for appending"); return; }
+  if (file.println(message)) {  SerialMon.println("Message appended"); }
+  else { SerialMon.println("Append failed"); }
+  file.close();
+  SerialMon.println("File Closed");
 }
 
-void createHeader(fs::FS &fs, String path, String message) {
+void createHeader(fs::FS &fs, String path, String message)
+{
+  SerialMon.printf("Checking if %s exists...", path);
   File file = fs.open(path);
   if (!file)
   {
+    SerialMon.print("\nFile does not exist creating header files now...");
     File file = fs.open(path, FILE_APPEND);
+    if (file.println(message)) { SerialMon.println(" >OK"); }
+    else { SerialMon.println(" >Failed"); }
     return;
   }
+  SerialMon.println(" >OK");
   file.close();
+  SerialMon.println("File Closed");
 }
 
 // Time
