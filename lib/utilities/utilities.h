@@ -254,14 +254,14 @@ float lux, irradiance;
 
 // Rain Gauge
 float tipValue = 0.1099, rain;
-uint16_t receivedRainCount;
+uint16_t receivedRainCount = 0;
 
 // Wind Speed and Gust var
 float windspeed;
-int REV, radius = 50, period = 60;
-uint16_t receivedWindCount;
+int radius = 50, period = 60;
+uint16_t receivedWindCount = 0;
 float gust;
-uint16_t receivedGustCount;
+uint16_t receivedGustCount = 0;
 
 // Battery Voltage Library and Variable
 #include <Adafruit_INA219.h>
@@ -327,10 +327,10 @@ String getDirection() {
 }
 
 void getSlave() {
-  Wire.requestFrom(SLAVE, 4);
+  Wire.requestFrom(SLAVE, 6);
 
   // Rain
-  while (2 < Wire.available()) {
+  if (Wire.available() >= 4) {
     byte msb = Wire.read();
     byte lsb = Wire.read();
     receivedRainCount = (msb << 8) | lsb;
@@ -338,7 +338,7 @@ void getSlave() {
   rain = receivedRainCount * tipValue;
 
   // Wind speed
-  while (Wire.available()) {
+  if (Wire.available() >= 2) {
     byte msb = Wire.read();
     byte lsb = Wire.read();
     receivedWindCount = (msb << 8) | lsb;
@@ -346,14 +346,12 @@ void getSlave() {
   windspeed = (2 * PI * radius * receivedWindCount * 3.6) / (period * 1000);
 
   // Gust
-  // while (Wire.available())
-  // {
-  //   byte msb = Wire.read();
-  //   byte lsb = Wire.read();
-  //   receivedGustCount = (msb << 8) | lsb;
-  // }
-  // gust = (2 * PI * radius * receivedGustCount * 3.6) / (3 * 1000);
-  gust = 0;
+  if (Wire.available() >= 2) {
+    byte msb = Wire.read();
+    byte lsb = Wire.read();
+    receivedGustCount = (msb << 8) | lsb; // Correctly assign receivedGustCount
+  }
+  gust = (2 * PI * radius * receivedGustCount * 3.6) / (3 * 1000);
 }
 
 String getBatteryVoltage() {
