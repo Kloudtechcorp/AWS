@@ -37,36 +37,9 @@ HardwareSerial SerialAT(1);
 const char apn[] = "smartlte";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-// Kloudtrackdev
-// const char server[] = "development.kloudtechsea.com"; 
-// const char resource[] = "https://development.kloudtechsea.com/Kloudtrackv4/weather/WeatherReadings/insert-data.php";
 // v1server Serial 1
 const char server[] = "v1server.kloudtechsea.com"; 
 const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
-// v1server Serial 2
-// const char server[] = "v1server.kloudtechsea.com"; 
-// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=b1aceef9-fb78-405c-b3e3-3a6be96f6932";
-// v1server Serial 3
-// const char server[] = "v1server.kloudtechsea.com"; 
-// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=f0c1169d-6f2a-44c9-a96d-143b77643c9d";
-// v1server Serial 4
-// const char server[] = "v1server.kloudtechsea.com"; 
-// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=816a2a9a-5f29-4d47-a545-d0ab0e97ffdd";
-// Test Server
-// const char server[] = "app.kloudtechsea.com";
-// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=CO07-AROL-9OIS-HP40";
-// AWS Server 1 - Axe
-// const char server[] = "app.kloudtechsea.com";
-// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=99NL-VII0-BCFW-TUO1";
-// AWS Server 2 - Lina
-// const char server[] = "app.kloudtechsea.com";
-// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=RQCA-CCN4-5GY2-UPVZ";
-// AWS Server 3 - Meepo
-// const char server[] = "app.kloudtechsea.com";
-// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=AM4Z-FYW6-MT04-FGME";
-// AWS Server 4 - Invoker
-// const char server[] = "app.kloudtechsea.com";
-// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=7JRE-I894-CXIA-01FM";
 
 TinyGsm modem(SerialAT);
 const int port = 443;
@@ -83,22 +56,7 @@ SSLClient secure_layer(&base_client);
 HttpClient client = HttpClient(secure_layer, server, port);
 
 // String Parameters
-String t1Str = "";
-String h1Str = "";
-String p1Str = "";
-String t2Str = "";
-String h2Str = "";
-String p2Str = "";
-String t3Str = "";
-String h3Str = "";
-String p3Str = "";
-String lightStr = "";
-String uvIntensityStr = "";
-String windDirStr = "";
-String windSpeedStr = "";
 String rainStr = "";
-String gustStr = "";
-String batteryStr = "";
 String communication = "";
 
 // SD Card Definitions
@@ -210,44 +168,18 @@ void logDataToSDCard() {
     getTime();
     SerialMon.println("Datetime: " + dateTime);
     SerialMon.println("Filename:" + fileName);
-    sprintf(data, "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", 
-            t1Str, h1Str, p1Str, t2Str, h2Str, p2Str, t3Str, h3Str, p3Str, 
-            windDirStr, lightStr, uvIntensityStr, rainStr, windSpeedStr, communication);    
+    sprintf(data, "%s, %s", 
+            rainStr, communication);    
     SerialMon.println("Data: " + String(data));
     String log = dateTime + data;
 
-    createHeader(SD, fileName, "Date, Temperature 1, Humidity 1, Pressure 1, Temperature 2, Humidity 2, Pressure 2, Temperature 3, Humidity 3, Pressure 3, Wind Direction, Light Intensity, UV Intensity, Precipitation, Wind Speed, Communication");
+    createHeader(SD, fileName, "Date, Precipitation, Communication");
     appendFile(SD, fileName, log);
 
     SerialMon.println("Data logged successfully.");
     SerialMon.println();
   }
 }
-
-// BME280 Library and Variables
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BME280.h>
-Adafruit_BME280 bme1;
-Adafruit_BME280 bme2;
-Adafruit_BME280 bme3;
-float t1, h1, p1, t2, h2, p2, t3, h3, p3;
-
-// AS5600 Variables
-int magnetStatus, lowbyte, rawAngle, correctedAngle;
-word highbyte;
-float degAngle, startAngle;
-RTC_DATA_ATTR float rtcStartAngle;
-RTC_DATA_ATTR int rtcCorrectAngle;
-
-// UV Variables
-#define uvPin 32
-float sensorVoltage, sensorValue;
-int uvIntensity;
-
-// BH1750 Library and Variables
-#include <BH1750.h>
-BH1750 lightMeter;
-float lux, irradiance;
 
 // Slave Address
 #define SLAVE 0x03
@@ -256,107 +188,16 @@ float lux, irradiance;
 float tipValue = 0.1099, rain;
 uint16_t receivedRainCount = 0;
 
-// Wind Speed and Gust var
-float windspeed;
-int radius = 50, period = 60;
-uint16_t receivedWindCount = 0;
-float gust;
-uint16_t receivedGustCount = 0;
-
-// Battery Voltage Library and Variable
-#include <Adafruit_INA219.h>
-Adafruit_INA219 ina219;
-
-void select_bus(uint8_t bus) {
-  Wire.beginTransmission(0x70);
-  Wire.write(1 << bus);
-  Wire.endTransmission();
-}
-
-void getBME(Adafruit_BME280 bme, int bus, float *temp, float *hum, float *pres) {
-  select_bus(bus);
-  *temp = bme.readTemperature();
-  *hum = bme.readHumidity();
-  *pres = bme.readPressure() / 100.0F;
-}
-
-String getUV() {
-  sensorValue = analogRead(uvPin);
-  sensorVoltage = sensorValue * (3.3 / 4095);
-  uvIntensity = sensorVoltage * 1000;
-  uvIntensityStr = String(uvIntensity);
-  return uvIntensityStr;
-}
-
-String getLight() {
-  lux = lightMeter.readLightLevel();
-  lightStr = String(lux);
-  return lightStr;
-}
-
-void ReadRawAngle() {
-  Wire.beginTransmission(0x36);
-  Wire.write(0x0D);
-  Wire.endTransmission();
-  Wire.requestFrom(0x36, 1);
-  lowbyte = Wire.read();
-
-  Wire.beginTransmission(0x36);
-  Wire.write(0x0C);
-  Wire.endTransmission();
-  Wire.requestFrom(0x36, 1);
-  highbyte = Wire.read();
-
-  highbyte = highbyte << 8;
-  rawAngle = highbyte | lowbyte;
-  degAngle = rawAngle * 0.087890625;
-}
-
-void correctAngle() {
-  correctedAngle = 360 - degAngle + startAngle;
-  if (correctedAngle > 360) { correctedAngle -= 360; }
-  rtcCorrectAngle = correctedAngle;
-  if (correctedAngle == 360) { correctedAngle = 0; }
-}
-
-String getDirection() {
-  ReadRawAngle();
-  correctAngle();
-  windDirStr = String(correctedAngle);
-  return windDirStr;
-}
-
 void getSlave() {
-  Wire.requestFrom(SLAVE, 6);
+  Wire.requestFrom(SLAVE, 2);
 
   // Rain
-  if (Wire.available() >= 4) {
+  if (Wire.available() >= 2) {
     byte msb = Wire.read();
     byte lsb = Wire.read();
     receivedRainCount = (msb << 8) | lsb;
   }
   rain = receivedRainCount * tipValue;
-
-  // Wind speed
-  if (Wire.available() >= 2) {
-    byte msb = Wire.read();
-    byte lsb = Wire.read();
-    receivedWindCount = (msb << 8) | lsb;
-  }
-  windspeed = (2 * PI * radius * receivedWindCount * 3.6) / (period * 1000);
-
-  // Gust
-  if (Wire.available() >= 2) {
-    byte msb = Wire.read();
-    byte lsb = Wire.read();
-    receivedGustCount = (msb << 8) | lsb; // Correctly assign receivedGustCount
-  }
-  gust = (2 * PI * radius * receivedGustCount * 3.6) / (3 * 1000);
-}
-
-String getBatteryVoltage() {
-  batteryStr = String(ina219.getBusVoltage_V());
-  return batteryStr;
 }
 
 void GSMinit() {
@@ -392,108 +233,9 @@ void GSMinit() {
 }
 
 void printResults() {
-  SerialMon.println("T1 = " + t1Str);
-  SerialMon.println("T2 = " + t2Str);
-  SerialMon.println("T3 = " + t3Str);
-  SerialMon.println("H1 = " + h1Str);
-  SerialMon.println("H2 = " + h2Str);
-  SerialMon.println("H3 = " + h3Str);
-  SerialMon.println("P1 = " + p1Str);
-  SerialMon.println("P2 = " + p2Str);
-  SerialMon.println("P3 = " + p3Str);
-  SerialMon.println("Light Intensity = " + lightStr);
-  SerialMon.println("UV Intensity = " + uvIntensityStr);
-  SerialMon.println("Wind Direction = " + windDirStr);
-  SerialMon.println("Wind Speed = " + windSpeedStr);
   SerialMon.println("Rain = " + rainStr);
-  SerialMon.println("Gust = " + gustStr);
-  SerialMon.println("Battery Voltage = " + batteryStr);
   SerialMon.println("Time: " + dateTime);
   SerialMon.println("Communication Status: " + communication);
-}
-
-void collectTHP() {
-  // BME 1 Connect
-  SerialMon.print("BME 1: ");
-  select_bus(2);
-  if (!bme1.begin(0x76)) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getBME(bme1, 2, &t1, &h1, &p1);
-    t1Str = String(t1);
-    h1Str = String(h1);
-    p1Str = String(p1);
-  }
-  delay(10);
-  // BME 2 Connect
-  SerialMon.print("BME 2: ");
-  select_bus(3);
-  if (!bme2.begin(0x76)) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getBME(bme2, 3, &t2, &h2, &p2);
-    t2Str = String(t2);
-    h2Str = String(h2);
-    p2Str = String(p2);
-  }
-  delay(10);
-  // BME 3 Connect
-  SerialMon.print("BME 3: ");
-  select_bus(4);
-  if (!bme3.begin(0x76)) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getBME(bme3, 4, &t3, &h3, &p3);
-    t3Str = String(t3);
-    h3Str = String(h3);
-    p3Str = String(p3);
-  }
-  delay(10);
-}
-
-void collectLight() {
-  SerialMon.print("BH1750: ");
-  if (!lightMeter.begin()) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getLight();
-  }
-  delay(10);
-}
-
-void collectUV() {
-  // UV Connect
-  const int debounceThreshold = 10;
-  int uvPrevStatus = 0;
-  SerialMon.print("UV: ");
-  int uvStatus = analogRead(32);
-  if (abs(uvStatus - uvPrevStatus) > debounceThreshold) {
-    uvPrevStatus = uvStatus;
-    delay(50);
-    uvStatus = analogRead(32);
-  }
-
-  if (uvPrevStatus != uvStatus) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getUV();
-  }
-  delay(10);
-}
-
-void collectDirection() {
-  SerialMon.print("AS5600: ");
-  startAngle - rtcStartAngle;
-  ReadRawAngle();
-  if (rtcStartAngle == 0) { rtcStartAngle = degAngle; }
-  startAngle = rtcStartAngle;
-  correctedAngle = rtcCorrectAngle;
-  Wire.beginTransmission(0x36);
-  if (!Wire.endTransmission() == 0) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getDirection();
-  }
 }
 
 void collectSlave() {
@@ -503,19 +245,7 @@ void collectSlave() {
   else {
     SerialMon.println(" OK");
     getSlave();
-    windSpeedStr = String(windspeed);
     rainStr = String(rain);
-    gustStr = String(gust);
-  }
-  delay(10);
-}
-
-void collectBatteryV() {
-  SerialMon.print("INA219: ");
-  if (!ina219.begin()) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getBatteryVoltage();
   }
   delay(10);
 }
@@ -590,12 +320,4 @@ void sendHTTPPostRequest() {
   String response = client.responseBody();
   SerialMon.printf("Status code: %d\n", status_code);
   SerialMon.println("Response: " + response);
-
-  // int posting = client.post(resource, contentType, postData);
-  // SerialMon.printf("Reply: %d\n", posting);
-  // int status_code = client.responseStatusCode();
-  // String response = client.responseBody();
-
-  // SerialMon.printf("Status code: %d\n", status_code);
-  // SerialMon.println("Response: " + response);
 }

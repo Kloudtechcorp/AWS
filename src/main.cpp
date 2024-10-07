@@ -10,13 +10,7 @@ void setup()
 
   SerialMon.println("\n=================================== Sensors Status ===================================");
   Wire.begin(21, 22);
-
-  collectTHP();
-  collectLight();
-  collectUV();
-  collectDirection();
   collectSlave();
-  collectBatteryV();
 }
 
 void loop()
