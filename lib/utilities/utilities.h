@@ -55,8 +55,17 @@ TinyGsmClient base_client(modem, 0);
 SSLClient secure_layer(&base_client);
 HttpClient client = HttpClient(secure_layer, server, port);
 
+// ToughSonic Parameters
+#include <ModbusMaster.h>
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(19,18);
+ModbusMaster node;
+int distanceArray[10];
+float distance;
+int mode;
+
 // String Parameters
-String rainStr = "";
+String distanceStr = "";
 String communication = "";
 
 // SD Card Definitions
@@ -169,35 +178,16 @@ void logDataToSDCard() {
     SerialMon.println("Datetime: " + dateTime);
     SerialMon.println("Filename:" + fileName);
     sprintf(data, "%s, %s", 
-            rainStr, communication);    
+            distanceStr, communication);    
     SerialMon.println("Data: " + String(data));
     String log = dateTime + data;
 
-    createHeader(SD, fileName, "Date, Precipitation, Communication");
+    createHeader(SD, fileName, "Date, Distance, Communication");
     appendFile(SD, fileName, log);
 
     SerialMon.println("Data logged successfully.");
     SerialMon.println();
   }
-}
-
-// Slave Address
-#define SLAVE 0x03
-
-// Rain Gauge
-float tipValue = 0.1099, rain;
-uint16_t receivedRainCount = 0;
-
-void getSlave() {
-  Wire.requestFrom(SLAVE, 2);
-
-  // Rain
-  if (Wire.available() >= 2) {
-    byte msb = Wire.read();
-    byte lsb = Wire.read();
-    receivedRainCount = (msb << 8) | lsb;
-  }
-  rain = receivedRainCount * tipValue;
 }
 
 void GSMinit() {
@@ -224,30 +214,55 @@ void GSMinit() {
   SerialMon.print("Initializing modem...");
   if (!modem.init()) {
     SerialMon.println(" >Failed (Restarting in 10s)");
-    delay(10000);
-    modem.restart();
     return;
   }
   SerialMon.println(" >OK");
   AutoBaud();
 }
 
-void printResults() {
-  SerialMon.println("Rain = " + rainStr);
-  SerialMon.println("Time: " + dateTime);
-  SerialMon.println("Communication Status: " + communication);
+int calculateMode(int arr[], int size) {
+  int maxCount = 0, mode = 0;
+  for (int i = 0; i < size; i++) {
+    int count = 0;
+    for (int j = 0; j < size; j++) {
+      if (arr[j] == arr[i]) {
+        count++;
+      }
+    }
+    if (count > maxCount) {
+      maxCount = count;
+      mode = arr[i];
+    }
+  }
+  return mode;
 }
 
-void collectSlave() {
-  SerialMon.print("Slave: ");
-  Wire.beginTransmission(SLAVE);
-  if (!Wire.endTransmission() == 0) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getSlave();
-    rainStr = String(rain);
+void resetDistance(int arr[], int size) {
+  for (int i = 0; i < size; i++) {
+    arr[i] = 0;
   }
-  delay(10);
+}
+
+void getDistance() {
+  SerialMon.println("Ultrasonic Sensor");
+  // Calculate distance
+  for (int i = 0; i <= 9; i++) {
+    if (node.readHoldingRegisters(0x0200, 15) == node.ku8MBSuccess) {
+      distance = node.getResponseBuffer(14) * 0.003384 * 2.0 * 2.54;
+      distanceArray[i] = distance;
+      SerialMon.println("Distance " + String(i + 1) + ": " + String(distanceArray[i])); 
+      delay(1000);
+    }
+  }
+  mode = calculateMode(distanceArray, 10); // Solve for mode
+  resetDistance(distanceArray, 10);
+  distanceStr = String(mode);
+}
+
+void printResults() {
+  SerialMon.println("Distance in cm = " + distanceStr);
+  SerialMon.println("Time: " + dateTime);
+  SerialMon.println("Communication Status: " + communication);
 }
 
 void connectAPN() {
@@ -300,9 +315,8 @@ void sendHTTPPostRequest() {
   SerialMon.printf("Connecting to %s\n", server);
 
   SerialMon.println("Making POST request securely");
-  // String contentType = "Content-Type: application/json";
 
-  String postData = "{\"recordedAt\":\"" + dateTime + "\", \"precipitation\":\"" + rainStr + "\"}";
+  String postData = "{\"recordedAt\":\"" + dateTime + "\", \"distance\":\"" + distanceStr + "\"}";
 
   SerialMon.println("\n=========================================POST Data ============================================");
   SerialMon.println(postData);

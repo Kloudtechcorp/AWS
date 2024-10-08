@@ -1,16 +1,16 @@
 #include <Arduino.h>
 #include <math.h>
-#include <Wire.h>
 #include <utilities.h>
 
 void setup()
 {
   SerialMon.begin(115200); delay(10);
+  mySerial.begin(9600);
+  node.begin(1, mySerial);
   GSMinit();
 
-  SerialMon.println("\n=================================== Sensors Status ===================================");
-  Wire.begin(21, 22);
-  collectSlave();
+  SerialMon.println("\n=================================== River Level Monitoring System ===================================");
+  getDistance();
 }
 
 void loop()
