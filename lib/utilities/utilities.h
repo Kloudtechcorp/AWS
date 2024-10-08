@@ -302,7 +302,7 @@ void sendHTTPPostRequest() {
   SerialMon.println("Making POST request securely");
   // String contentType = "Content-Type: application/json";
 
-  String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + lightStr + "\", \"uvIntensity\":\"" + uvIntensityStr + "\", \"windDirection\":\"" + windDirStr + "\", \"windSpeed\":\"" + windSpeedStr + "\", \"precipitation\":\"" + rainStr + "\", \"gust\":\"" + gustStr + "\", \"T1\":\"" + t1Str + "\", \"T2\":\"" + t2Str + "\", \"T3\":\"" + t3Str + "\", \"H1\":\"" + h1Str + "\", \"H2\":\"" + h2Str + "\", \"H3\":\"" + h3Str + "\", \"P1\":\"" + p1Str + "\", \"P2\":\"" + p2Str + "\", \"P3\":\"" + p3Str + "\", \"batteryVoltage\":\"" + batteryStr + "\"}";
+  String postData = "{\"recordedAt\":\"" + dateTime + "\", \"precipitation\":\"" + rainStr + "\"}";
 
   SerialMon.println("\n=========================================POST Data ============================================");
   SerialMon.println(postData);
