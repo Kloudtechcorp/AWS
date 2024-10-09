@@ -37,9 +37,9 @@ HardwareSerial SerialAT(1);
 const char apn[] = "smartlte";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-// v1server Serial 1
-const char server[] = "v1server.kloudtechsea.com"; 
-const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
+// Daang Bago
+const char server[] = "app.kloudtechsea.com"; 
+const char resource[] = "https://app.kloudtechsea.com/api/v1/riverlevel/insert-data?serial=L15B-UN2C-2IEN-QVZ7";
 
 TinyGsm modem(SerialAT);
 const int port = 443;
