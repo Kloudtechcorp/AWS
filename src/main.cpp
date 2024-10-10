@@ -5,6 +5,8 @@
 void setup()
 {
   SerialMon.begin(115200); delay(10);
+  SerialMon.println("Station Name: " + stationName);
+  SerialMon.println("Code version: " + versionCode);
   mySerial.begin(9600);
   node.begin(1, mySerial);
   GSMinit();
