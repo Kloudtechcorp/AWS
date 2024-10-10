@@ -42,6 +42,8 @@ const char gprsPass[] = "";
 // New Server
 const char server[] = "app.kloudtechsea.com"; 
 const char resource[] = "https://app.kloudtechsea.com/api/v1/raingauge/insert-data?serial=6E4V-WYDG-5YBA-CC2K";
+String stationName = "Bayang-bayanan-ARG-1";
+String versionCode = "AWS - ARG branch";
 
 TinyGsm modem(SerialAT);
 const int port = 443;
