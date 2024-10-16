@@ -37,11 +37,16 @@ HardwareSerial SerialAT(1);
 const char apn[] = "smartlte";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-// Server
+// Server - Daang Bago
 const char server[] = "app.kloudtechsea.com"; 
 const char resource[] = "https://app.kloudtechsea.com/api/v1/riverlevel/insert-data?serial=L15B-UN2C-2IEN-QVZ7";
 String stationName = "Daang Bago-RLMS-1";
-String versionCode = "AWS - RLMS branch";
+String versionCode = "AWS - RLMS Branch";
+// Server - Laon
+// const char server[] = "app.kloudtechsea.com"; 
+// const char resource[] = "https://app.kloudtechsea.com/api/v1/riverlevel/insert-data?serial=YREF-KPVT-O71H-GVIT";
+// String stationName = "Laon-RLMS-1";
+// String versionCode = "AWS - RLMS Branch"
 
 TinyGsm modem(SerialAT);
 const int port = 443;
@@ -62,7 +67,6 @@ HttpClient client = HttpClient(secure_layer, server, port);
 #include <SoftwareSerial.h>
 SoftwareSerial mySerial(19,18);
 ModbusMaster node;
-int distanceArray[10];
 float distance;
 int mode;
 
@@ -245,20 +249,70 @@ void resetDistance(int arr[], int size) {
   }
 }
 
+// Original Version
+// int distanceArray[10];
+// void getDistance() {
+//   SerialMon.println("Ultrasonic Sensor");
+//   // Calculate distance
+//   for (int i = 0; i <= 9; i++) {
+//     if (node.readHoldingRegisters(0x0200, 9) == node.ku8MBSuccess) {
+//       distance = node.getResponseBuffer(9) * 0.003384 * 2.0 * 2.54;
+//       distanceArray[i] = distance;
+//       SerialMon.println("Distance " + String(i + 1) + ": " + String(distanceArray[i])); 
+//       delay(1000);
+//     }
+//   }
+//   mode = calculateMode(distanceArray, 10); // Solve for mode
+//   resetDistance(distanceArray, 10);
+//   distanceStr = String(mode);
+// }
+
+// Version 2 - Delay of 8 Seconds
+// int distanceArray[5];
+// void getDistance() {
+//   SerialMon.println("Ultrasonic Sensor");
+//   // Calculate Distance
+//   for (int i = 0; i <= 4; i++) {
+//     if (node.readHoldingRegisters(0x02, 4) == node.ku8MBSuccess) {
+//       distance = node.getResponseBuffer(4) * 0.003384 * 2.0 * 2.54;
+//       distanceArray[i] = distance;
+//       SerialMon.println("Distance " + String(i + 1) + ": " + String(distanceArray[i]));
+//       delay(8000);
+//     }
+//   }
+//   mode = calculateMode(distanceArray, 5); // Solve for mode
+//   resetDistance(distanceArray, 5);
+//   distanceStr = String(mode);
+// }
+
+// Version 3 - Delay of 10 Seconds
+// int distanceArray[4];
+// void getDistance() {
+//   SerialMon.println("Ultrasonic Sensor");
+//   // Calculate Distance
+//   for (int i = 0; i <= 3; i++) {
+//     if (node.readHoldingRegisters(0x02, 3) == node.ku8MBSuccess) {
+//       distance = node.getResponseBuffer(3) * 0.003384 * 2.0 * 2.54;
+//       distanceArray[i] = distance;
+//       SerialMon.println("Distance " + String(i + 1) + ": " + String(distanceArray[i]));
+//       delay(10000);
+//     }
+//   }
+//   mode = calculateMode(distanceArray, 4); // Solve for mode
+//   resetDistance(distanceArray, 4);
+//   distanceStr = String(mode);
+// }
+
+// Version 4 - No more mode
 void getDistance() {
   SerialMon.println("Ultrasonic Sensor");
-  // Calculate distance
-  for (int i = 0; i <= 9; i++) {
-    if (node.readHoldingRegisters(0x0200, 15) == node.ku8MBSuccess) {
-      distance = node.getResponseBuffer(14) * 0.003384 * 2.0 * 2.54;
-      distanceArray[i] = distance;
-      SerialMon.println("Distance " + String(i + 1) + ": " + String(distanceArray[i])); 
-      delay(1000);
-    }
+  // Calculate Distance
+  if (node.readHoldingRegisters(0x02, 14) == node.ku8MBSuccess) {
+    distance = node.getResponseBuffer(14) * 0.003384 * 2.0 * 2.54;
+    distanceStr = String(distance);
+    SerialMon.println("Distance: " + distanceStr);
+    delay(10000);
   }
-  mode = calculateMode(distanceArray, 10); // Solve for mode
-  resetDistance(distanceArray, 10);
-  distanceStr = String(mode);
 }
 
 void printResults() {
