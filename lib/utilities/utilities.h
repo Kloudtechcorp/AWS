@@ -36,7 +36,8 @@ HardwareSerial SerialAT(1);
 #include "SSLClient.h"
 
 // Website Credentials
-const char apn[] = "smartlte";
+// const char apn[] = "smartlte"; // for Smart
+const char apn[] = "http.globe.com.ph"; // for Globe
 const char gprsUser[] = "";
 const char gprsPass[] = "";
 // New Server
