@@ -268,22 +268,22 @@ void resetDistance(int arr[], int size) {
 // }
 
 // Version 2 - Delay of 8 Seconds
-// int distanceArray[5];
-// void getDistance() {
-//   SerialMon.println("Ultrasonic Sensor");
-//   // Calculate Distance
-//   for (int i = 0; i <= 4; i++) {
-//     if (node.readHoldingRegisters(0x02, 4) == node.ku8MBSuccess) {
-//       distance = node.getResponseBuffer(4) * 0.003384 * 2.0 * 2.54;
-//       distanceArray[i] = distance;
-//       SerialMon.println("Distance " + String(i + 1) + ": " + String(distanceArray[i]));
-//       delay(8000);
-//     }
-//   }
-//   mode = calculateMode(distanceArray, 5); // Solve for mode
-//   resetDistance(distanceArray, 5);
-//   distanceStr = String(mode);
-// }
+int distanceArray[5];
+void getDistance() {
+  SerialMon.println("Ultrasonic Sensor");
+  // Calculate Distance
+  for (int i = 0; i <= 4; i++) {
+    if (node.readHoldingRegisters(0x02, 4) == node.ku8MBSuccess) {
+      distance = node.getResponseBuffer(4) * 0.003384 * 2.0 * 2.54;
+      distanceArray[i] = distance;
+      SerialMon.println("Distance " + String(i + 1) + ": " + String(distanceArray[i]));
+      delay(8000);
+    }
+  }
+  mode = calculateMode(distanceArray, 5); // Solve for mode
+  resetDistance(distanceArray, 5);
+  distanceStr = String(mode);
+}
 
 // Version 3 - Delay of 10 Seconds
 // int distanceArray[4];
@@ -304,16 +304,16 @@ void resetDistance(int arr[], int size) {
 // }
 
 // Version 4 - No more mode
-void getDistance() {
-  SerialMon.println("Ultrasonic Sensor");
-  // Calculate Distance
-  if (node.readHoldingRegisters(0x02, 14) == node.ku8MBSuccess) {
-    distance = node.getResponseBuffer(14) * 0.003384 * 2.0 * 2.54;
-    distanceStr = String(distance);
-    SerialMon.println("Distance: " + distanceStr);
-    delay(10000);
-  }
-}
+// void getDistance() {
+//   SerialMon.println("Ultrasonic Sensor");
+//   // Calculate Distance
+//   if (node.readHoldingRegisters(0x02, 14) == node.ku8MBSuccess) {
+//     distance = node.getResponseBuffer(14) * 0.003384 * 2.0 * 2.54;
+//     distanceStr = String(distance);
+//     SerialMon.println("Distance: " + distanceStr);
+//     delay(10000);
+//   }
+// }
 
 void printResults() {
   SerialMon.println("Distance in cm = " + distanceStr);
