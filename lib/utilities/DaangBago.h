@@ -41,12 +41,7 @@ const char gprsPass[] = "";
 const char server[] = "app.kloudtechsea.com"; 
 const char resource[] = "https://app.kloudtechsea.com/api/v1/riverlevel/insert-data?serial=L15B-UN2C-2IEN-QVZ7";
 String stationName = "Daang Bago-RLMS-1";
-String versionCode = "AWS - RLMS Branch";
-// Server - Laon
-// const char server[] = "app.kloudtechsea.com"; 
-// const char resource[] = "https://app.kloudtechsea.com/api/v1/riverlevel/insert-data?serial=YREF-KPVT-O71H-GVIT";
-// String stationName = "Laon-RLMS-1";
-// String versionCode = "AWS - RLMS Branch"
+String versionCode = "RLMS";
 
 TinyGsm modem(SerialAT);
 const int port = 443;

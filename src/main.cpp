@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <math.h>
-#include <utilities.h>
+
+// Change depending on what Station
+#include <DaangBago.h>
 
 void setup()
 {
