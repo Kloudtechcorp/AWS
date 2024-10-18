@@ -37,29 +37,11 @@ HardwareSerial SerialAT(1);
 const char apn[] = "smartlte";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-// Kloudtrackdev
-// const char server[] = "development.kloudtechsea.com"; 
-// const char resource[] = "https://development.kloudtechsea.com/Kloudtrackv4/weather/WeatherReadings/insert-data.php";
-// v1server Serial 1
-// const char server[] = "v1server.kloudtechsea.com"; 
-// const char resource[] = "https://v1server.kloudtechsea.com/insert-weather?serial=867942a6-bba7-4f98-85e3-ddce529f9c1d";
-// AWS Server 1 - Axe
-const char server[] = "app.kloudtechsea.com";
-const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=99NL-VII0-BCFW-TUO1";
-String stationName = "Axe";
-String versionCode = "AWS - main";
 // AWS Server 2 - Lina
-// const char server[] = "app.kloudtechsea.com";
-// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=RQCA-CCN4-5GY2-UPVZ";
-// String stationName = "Lina";
-// AWS Server 3 - Meepo
-// const char server[] = "app.kloudtechsea.com";
-// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=AM4Z-FYW6-MT04-FGME";
-// String stationName = "Meepo";
-// AWS Server 4 - Invoker
-// const char server[] = "app.kloudtechsea.com";
-// const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=7JRE-I894-CXIA-01FM";
-// String stationName = "Invoker";
+const char server[] = "app.kloudtechsea.com";
+const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=RQCA-CCN4-5GY2-UPVZ";
+String stationName = "Lina";
+String versionCode = "AWS";
 
 TinyGsm modem(SerialAT);
 const int port = 443;
@@ -563,7 +545,6 @@ void sendHTTPPostRequest() {
   SerialMon.printf("Connecting to %s\n", server);
 
   SerialMon.println("Making POST request securely");
-  // String contentType = "Content-Type: application/json";
 
   String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + lightStr + "\", \"uvIntensity\":\"" + uvIntensityStr + "\", \"windDirection\":\"" + windDirStr + "\", \"windSpeed\":\"" + windSpeedStr + "\", \"precipitation\":\"" + rainStr + "\", \"gust\":\"" + gustStr + "\", \"T1\":\"" + t1Str + "\", \"T2\":\"" + t2Str + "\", \"T3\":\"" + t3Str + "\", \"H1\":\"" + h1Str + "\", \"H2\":\"" + h2Str + "\", \"H3\":\"" + h3Str + "\", \"P1\":\"" + p1Str + "\", \"P2\":\"" + p2Str + "\", \"P3\":\"" + p3Str + "\", \"batteryVoltage\":\"" + batteryStr + "\"}";
 
@@ -583,12 +564,4 @@ void sendHTTPPostRequest() {
   String response = client.responseBody();
   SerialMon.printf("Status code: %d\n", status_code);
   SerialMon.println("Response: " + response);
-
-  // int posting = client.post(resource, contentType, postData);
-  // SerialMon.printf("Reply: %d\n", posting);
-  // int status_code = client.responseStatusCode();
-  // String response = client.responseBody();
-
-  // SerialMon.printf("Status code: %d\n", status_code);
-  // SerialMon.println("Response: " + response);
 }
