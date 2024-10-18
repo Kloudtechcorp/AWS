@@ -255,8 +255,8 @@ void resetDistance(int arr[], int size) {
 //   SerialMon.println("Ultrasonic Sensor");
 //   // Calculate distance
 //   for (int i = 0; i <= 9; i++) {
-//     if (node.readHoldingRegisters(0x0200, 9) == node.ku8MBSuccess) {
-//       distance = node.getResponseBuffer(9) * 0.003384 * 2.0 * 2.54;
+//     if (node.readHoldingRegisters(0x0200, 28) == node.ku8MBSuccess) {
+//       distance = node.getResponseBuffer(20) * 0.003384 * 2.0 * 2.54;
 //       distanceArray[i] = distance;
 //       SerialMon.println("Distance " + String(i + 1) + ": " + String(distanceArray[i])); 
 //       delay(1000);
@@ -267,53 +267,58 @@ void resetDistance(int arr[], int size) {
 //   distanceStr = String(mode);
 // }
 
-// Version 2 - Delay of 8 Seconds
-int distanceArray[5];
+// Version 1 - Get millimeter
 void getDistance() {
-  SerialMon.println("Ultrasonic Sensor");
-  // Calculate Distance
-  for (int i = 0; i <= 4; i++) {
-    if (node.readHoldingRegisters(0x02, 4) == node.ku8MBSuccess) {
-      distance = node.getResponseBuffer(4) * 0.003384 * 2.0 * 2.54;
-      distanceArray[i] = distance;
-      SerialMon.println("Distance " + String(i + 1) + ": " + String(distanceArray[i]));
-      delay(8000);
-    }
-  }
-  mode = calculateMode(distanceArray, 5); // Solve for mode
-  resetDistance(distanceArray, 5);
-  distanceStr = String(mode);
-}
+   SerialMon.println("Ultrasonic Sensor");
+   // Calculate Distance
+   if (node.readHoldingRegisters(0x02, 28) == node.ku8MBSuccess) {
+     distance = node.getResponseBuffer(22) * 10;
+     distanceStr = String(distance);
+     SerialMon.println("Distance: " + distanceStr);
+     delay(10000);
+   }
+ }
 
-// Version 3 - Delay of 10 Seconds
-// int distanceArray[4];
-// void getDistance() {
-//   SerialMon.println("Ultrasonic Sensor");
-//   // Calculate Distance
-//   for (int i = 0; i <= 3; i++) {
-//     if (node.readHoldingRegisters(0x02, 3) == node.ku8MBSuccess) {
-//       distance = node.getResponseBuffer(3) * 0.003384 * 2.0 * 2.54;
-//       distanceArray[i] = distance;
-//       SerialMon.println("Distance " + String(i + 1) + ": " + String(distanceArray[i]));
-//       delay(10000);
-//     }
-//   }
-//   mode = calculateMode(distanceArray, 4); // Solve for mode
-//   resetDistance(distanceArray, 4);
-//   distanceStr = String(mode);
-// }
+// Version 2 - Raw Count (count to inches to cm)
+/*
+void getDistance() {
+   SerialMon.println("Ultrasonic Sensor");
+   // Calculate Distance
+   if (node.readHoldingRegisters(0x02, 28) == node.ku8MBSuccess) {
+     distance = node.getResponseBuffer(20) * 0.006768 * 2.0 * 2.54;
+     distanceStr = String(distance);
+     SerialMon.println("Distance: " + distanceStr);
+     delay(10000);
+   }
+ }
+*/
 
-// Version 4 - No more mode
-// void getDistance() {
-//   SerialMon.println("Ultrasonic Sensor");
-//   // Calculate Distance
-//   if (node.readHoldingRegisters(0x02, 14) == node.ku8MBSuccess) {
-//     distance = node.getResponseBuffer(14) * 0.003384 * 2.0 * 2.54;
-//     distanceStr = String(distance);
-//     SerialMon.println("Distance: " + distanceStr);
-//     delay(10000);
-//   }
-// }
+// Version 3 - Raw Count (count to cm)
+/*
+void getDistance() {
+			SerialMon.println("Ultrasonic Sensor");
+			// Calculate Distance
+			if (node.readHoldingRegisters(0x02, 28) == node.ku8MBSuccess) {
+					distance = node.getResponseBuffer(20) * 0.017191;
+					distanceStr = String(distance);
+					SerialMon.println("Distance: " + distanceStr);
+					delay(1000);
+			}
+	}
+*/
+
+// Version 4 - Calculate using Response Buffers
+/*
+void getDistance() {
+			SerialMon.println("Ultrasonic Sensor");
+			// Calculate Distance
+			if (node.readHoldingRegisters(0x02, 28) == node.ku8MBSuccess) {
+					distance = node.getResponseBuffer(20) * node.getResponseBuffer(27) / node.getResponseBuffer(28);
+					distanceStr = String(distance);
+					SerialMon.println("Distance: " + distanceStr);
+			}
+	}
+*/ 
 
 void printResults() {
   SerialMon.println("Distance in cm = " + distanceStr);
