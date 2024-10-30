@@ -318,7 +318,7 @@ void getSlave() {
     byte lsb = Wire.read();
     receivedWindCount = (msb << 8) | lsb;
   }
-  windspeed = (2 * PI * radius * receivedWindCount * 3.6) / (period * 1000);
+  windspeed = ((2 * PI * radius * receivedWindCount * 3.6) / (period * 1000)) * 3.6;
 
   // Gust
   if (Wire.available() >= 2) {
@@ -326,7 +326,7 @@ void getSlave() {
     byte lsb = Wire.read();
     receivedGustCount = (msb << 8) | lsb; // Correctly assign receivedGustCount
   }
-  gust = (2 * PI * radius * receivedGustCount * 3.6) / (3 * 1000);
+  gust = ((2 * PI * radius * receivedGustCount * 3.6) / (3 * 1000)) * 3.6;
 }
 
 String getBatteryVoltage() {
