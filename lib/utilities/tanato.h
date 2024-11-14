@@ -39,7 +39,7 @@ const char gprsUser[] = "";
 const char gprsPass[] = "";
 // AWS Server 1 - Axe
 const char server[] = "app.kloudtechsea.com";
-const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=99NL-VII0-BCFW-TUO1";
+const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=QHVM-L9AR-LP84-JB51";
 String stationName = "Tanato Elementary School";
 String versionCode = "AWS";
 
