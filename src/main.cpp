@@ -3,7 +3,7 @@
 #include <Wire.h>
 
 // Change whether what station to use
-#include <axe.h>
+#include <alexandria.h>
 
 void setup()
 {
@@ -25,10 +25,10 @@ void setup()
 
 void loop()
 {
+  startSDCard();
   connectAPN();
   connectServer();
-  startSDCard();
-
+  
   SerialMon.println("\n=================================== Print results ===================================");
   printResults();
 

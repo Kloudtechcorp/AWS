@@ -185,7 +185,7 @@ void logDataToSDCard() {
     getTime();
     SerialMon.println("Datetime: " + dateTime);
     SerialMon.println("Filename:" + fileName);
-    sprintf(data, "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", 
+    sprintf(data, ", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", 
             t1Str, h1Str, p1Str, t2Str, h2Str, p2Str, t3Str, h3Str, p3Str, 
             windDirStr, lightStr, uvIntensityStr, rainStr, windSpeedStr, communication);    
     SerialMon.println("Data: " + String(data));
