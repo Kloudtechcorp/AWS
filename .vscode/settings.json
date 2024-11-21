@@ -1,7 +1,16 @@
 {
     "files.associations": {
+        ".css": "tailwindcss",
         "*.embeddedhtml": "html",
-        "*.tpp": "cpp"
+        "*.tpp": "cpp",
+        "array": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "vector": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp"
     },
     "cmake.sourceDirectory": "C:/Users/ariel/Downloads/KT-Weather-Station-main/KT-Weather-Station-main/.pio/libdeps/esp32dev/ESP8266 and ESP32 OLED driver for SSD1306 displays"
 }
