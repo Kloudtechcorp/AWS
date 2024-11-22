@@ -3,7 +3,7 @@
 #include <Wire.h>
 
 // Change whether what station to use
-#include <sabang.h>
+#include <test.h>
 
 void setup()
 {
@@ -14,7 +14,8 @@ void setup()
 
   SerialMon.println("\n=================================== Sensors Status ===================================");
   Wire.begin(21, 22);
-
+  getTime();
+  SerialMon.println("Date and Time: " + dateTime);
   collectTHP();
   collectLight();
   collectUV();
