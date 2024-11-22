@@ -342,14 +342,14 @@ void GSMinit() {
   // A7670-GSM Reset
   pinMode(RESET, OUTPUT);
   digitalWrite(RESET, LOW); delay(100);
-  digitalWrite(RESET, HIGH); delay(3000);
-  digitalWrite(RESET, LOW);
+  digitalWrite(RESET, HIGH); delay(100);
+  digitalWrite(RESET, LOW); delay(100);
 
   // A7670-GSM Power
   pinMode(PWR_PIN, OUTPUT);
   digitalWrite(PWR_PIN, LOW); delay(100);
-  digitalWrite(PWR_PIN, HIGH); delay(1000);
-  digitalWrite(PWR_PIN, LOW); delay(3000);
+  digitalWrite(PWR_PIN, HIGH); delay(100);
+  digitalWrite(PWR_PIN, LOW); delay(100);
   SerialMon.println(" >OK");
 
   SerialMon.print("Starting Serial Communications...");
