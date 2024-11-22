@@ -47,7 +47,7 @@ TinyGsm modem(SerialAT);
 const int port = 443;
 bool connectedAPN = false;
 int retryCountAPN = 0;
-const int maxRetriesAPN = 4;
+const int maxRetriesAPN = 3;
 bool connectedServer = false;
 int retryCountServer = 0;
 const int maxRetriesServer = 10;
