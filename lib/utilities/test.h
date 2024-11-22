@@ -39,7 +39,7 @@ const char gprsUser[] = "";
 const char gprsPass[] = "";
 // AWS Server 1 - Axe
 const char server[] = "app.kloudtechsea.com";
-const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=QHVM-L9AR-LP84-JB51";
+const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=YDEI-347Z-JWOI-1NF6";
 String stationName = "Test";
 String versionCode = "AWS";
 
@@ -47,7 +47,7 @@ TinyGsm modem(SerialAT);
 const int port = 443;
 bool connectedAPN = false;
 int retryCountAPN = 0;
-const int maxRetriesAPN = 7;
+const int maxRetriesAPN = 4;
 bool connectedServer = false;
 int retryCountServer = 0;
 const int maxRetriesServer = 10;
@@ -242,44 +242,6 @@ uint16_t receivedGustCount = 0;
 #include <Adafruit_INA219.h>
 Adafruit_INA219 ina219;
 
-// CERTIFICATE
-const char *root_ca =
-    "-----BEGIN CERTIFICATE-----\n"
-    "MIIGJTCCBQ2gAwIBAgISBNKBw5RrEabvEQ8qXuXIicRZMA0GCSqGSIb3DQEBCwUA\n"
-    "MDIxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MQswCQYDVQQD\n"
-    "EwJSMzAeFw0yNDA1MDMwNTAwMTlaFw0yNDA4MDEwNTAwMThaMCYxJDAiBgNVBAMT\n"
-    "G2tsb3VkdHJhY2sua2xvdWR0ZWNoc2VhLmNvbTCCAiIwDQYJKoZIhvcNAQEBBQAD\n"
-    "ggIPADCCAgoCggIBAJ2jaT1JSGu/EB3ZasUd1iqGWoUypAxCuSD5unPIWrMePVj4\n"
-    "lJ/DTyrusWzbnkSfN/IiObhZR0hfdUMJVDXJ5kVw21iGFTiG6Q88G1mnICH7Dmju\n"
-    "fAXVrTdPtPRDnM17nGKVv/eNtxA9tqrvnfAA+aaRiWe2zI+8r/FBPSMr1/sEzLCb\n"
-    "cpbNSSA56EFQ6KN7nJNFLCZyiJq+3DyIWvhxTW5nmTsj4GTz9LNA1KxQTIxPdS7P\n"
-    "4DYfPoXbwGOQJd6Qp+rBNp0q8P2zazFwCUctJMCzUvTPkXiLOQa10ZmgXMS+m+qd\n"
-    "xcnV+OBBhm5A4ePkWxj3gG/qMs9xL46u3oYO5a8XFevtQtFefZ/XOh3kWFd1HcMe\n"
-    "aLeaZSizZhqZLKMl5jjhnytdbJLqr3XMqHTwYBrqzDjIIQrz05QtwiO2rgmAueTQ\n"
-    "I5PkCFoM/BCMYncXWr2ut2dpaUmjnc+m+0Tj9UhC8EywjomDHuxoz88jLCeXcucT\n"
-    "OqAn4CnNGPqnCpjZsi8eDc/UScwX9/wvKK3SjVoxkQ79JYEMJrt9T8QpCdz7Jnlz\n"
-    "o7mLkjIg1myrNPaXT9e43+2BBsB0Z45dzCwSCdfQa6Yiq9hhL35jH/9gewwG0Cts\n"
-    "2ZeAOgOLBfdDIZ0iMmgJrjqJMquGJo9jhjitZ2n12kR9kqXXMH+whut2FJ9tAgMB\n"
-    "AAGjggI/MIICOzAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwEG\n"
-    "CCsGAQUFBwMCMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFA+bIIZGnU749LOPr1Zm\n"
-    "JsTDDFMbMB8GA1UdIwQYMBaAFBQusxe3WFbLrlAJQOYfr52LFMLGMFUGCCsGAQUF\n"
-    "BwEBBEkwRzAhBggrBgEFBQcwAYYVaHR0cDovL3IzLm8ubGVuY3Iub3JnMCIGCCsG\n"
-    "AQUFBzAChhZodHRwOi8vcjMuaS5sZW5jci5vcmcvMEcGA1UdEQRAMD6CG2tsb3Vk\n"
-    "dHJhY2sua2xvdWR0ZWNoc2VhLmNvbYIfd3d3Lmtsb3VkdHJhY2sua2xvdWR0ZWNo\n"
-    "c2VhLmNvbTATBgNVHSAEDDAKMAgGBmeBDAECATCCAQUGCisGAQQB1nkCBAIEgfYE\n"
-    "gfMA8QB3AEiw42vapkc0D+VqAvqdMOscUgHLVt0sgdm7v6s52IRzAAABjz0KDG4A\n"
-    "AAQDAEgwRgIhAOcRiEp+2Ci1hTER/7D53V/ffcWqViZjqRlpzCA2ob1eAiEAqt7B\n"
-    "+w5YGGcbninZX4zhX+KDjpHZroSuBr/6i9L+V/IAdgA/F0tP1yJHWJQdZRyEvg0S\n"
-    "7ZA3fx+FauvBvyiF7PhkbgAAAY89Cgx7AAAEAwBHMEUCIEeNLdSPgsped5lnQvbD\n"
-    "K3KC5HVQo5qaFk71RB7XbF+dAiEAoG42c29IPxepsHcno1hedijlr6As/FSTeAYa\n"
-    "nh5lcSQwDQYJKoZIhvcNAQELBQADggEBAGkNCgI4kxfP5LfpqHYBJXsqfIXBLEca\n"
-    "4nfp4j894K56du9age2XbzTg/c5nlQJAUEoMPZyN0yimqpdPwDR89Eq+m9EdVcNl\n"
-    "5imJzeM766eWM+K78d2bE+1reqij63Y34lurZUIH0CAP5cH9q85CYok53ZFTQque\n"
-    "mkfsYT+furu3I88RGfAgpEpWczZTJO+TK0Yudm8EipwUsdlKCOkreFMUwOpBCPdk\n"
-    "Th2/SDDI9OHFSFYbQZVKabOkQaW4UbVgjydehXnWnzOuzRkQD64rdPBk9Xw3DRS9\n"
-    "oeges2GJDrMBrUvFL4uetweyPEeDJktOAsQKEqeD3O3t4Qqi2uKpGns=\n"
-    "-----END CERTIFICATE-----\n";
-
 void select_bus(uint8_t bus) {
   Wire.beginTransmission(0x70);
   Wire.write(1 << bus);
@@ -395,24 +357,12 @@ void GSMinit() {
   SerialMon.println(" >OK");
 
   SerialMon.print("Initializing modem...");
-  if (!modem.restart()) {
+  if (!modem.init()) {
     SerialMon.println(" >Failed (Restarting in 10s)");
     return;
   }
   SerialMon.println(" >OK");
   AutoBaud();
-
-  // SerialMon.print("Selecting Network Mode...");
-  // String result;
-  // result = modem.setNetworkMode(2);
-  // if (modem.waitResponse(10000L) != 1)
-  // {
-  //   SerialMon.println(" >OK");
-  //   return;
-  // }
-  // SerialMon.println(" >Failed");
-
-  // secure_layer.setCACert(root_ca);
 }
 
 void printResults() {
@@ -548,11 +498,11 @@ void connectAPN() {
   SerialMon.println("\n=================================== Connecting to APN ===================================");
   SerialMon.printf("Connecting to %s", apn);
   while (!connectedAPN && retryCountAPN < maxRetriesAPN) {
-    if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
+    if (!modem.gprsConnect(apn)) {
       communication = "Failed";
       SerialMon.print(".");
       retryCountAPN++;
-      delay(10000);
+      delay(20000);
     }
     else {
       SerialMon.println(" >OK");
