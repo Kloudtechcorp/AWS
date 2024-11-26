@@ -37,7 +37,6 @@ HardwareSerial SerialAT(1);
 const char apn[] = "smartlte";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-// AWS Server 1 - Axe
 const char server[] = "app.kloudtechsea.com";
 const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=YDEI-347Z-JWOI-1NF6";
 String stationName = "Test";
@@ -327,7 +326,7 @@ void getSlave() {
     byte lsb = Wire.read();
     receivedGustCount = (msb << 8) | lsb; // Correctly assign receivedGustCount
   }
-  gust = ((circumference * receivedWindCount * 3.6) / 3);
+  gust = ((circumference * receivedGustCount * 3.6) / 3);
 }
 
 String getBatteryVoltage() {
@@ -438,20 +437,21 @@ void collectLight() {
 void collectUV() {
   // UV Connect
   const int debounceThreshold = 10;
-  int uvPrevStatus = 0;
+  static int uvPrevStatus = 0;
   SerialMon.print("UV: ");
-  int uvStatus = analogRead(32);
+  int uvStatus = analogRead(uvPin);
   if (abs(uvStatus - uvPrevStatus) > debounceThreshold) {
     uvPrevStatus = uvStatus;
     delay(50);
-    uvStatus = analogRead(32);
+    uvStatus = analogRead(uvPin);
   }
 
-  if (uvPrevStatus != uvStatus) { SerialMon.println(" Failed"); }
-  else {
+  if (abs(uvStatus - uvPrevStatus) <= debounceThreshold) { 
+    uvPrevStatus = uvStatus;
     SerialMon.println(" OK");
     getUV();
   }
+  else { SerialMon.println(" Failed"); }
   delay(10);
 }
 

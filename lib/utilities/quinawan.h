@@ -37,7 +37,6 @@ HardwareSerial SerialAT(1);
 const char apn[] = "smartlte";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-// AWS Server 1 - Axe
 const char server[] = "app.kloudtechsea.com";
 const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=BZIH-W8DI-62JP-LAH2";
 String stationName = "Quinawan Integrated School";
@@ -47,7 +46,7 @@ TinyGsm modem(SerialAT);
 const int port = 443;
 bool connectedAPN = false;
 int retryCountAPN = 0;
-const int maxRetriesAPN = 10;
+const int maxRetriesAPN = 5;
 bool connectedServer = false;
 int retryCountServer = 0;
 const int maxRetriesServer = 10;
@@ -232,8 +231,8 @@ float tipValue = 0.1099, rain;
 uint16_t receivedRainCount = 0;
 
 // Wind Speed and Gust var
-float windspeed;
-int radius = 50, period = 60;
+float windspeed, circumference, calibrationFactor = 2.4845;
+int radius = 0.05, period = 60;
 uint16_t receivedWindCount = 0;
 float gust;
 uint16_t receivedGustCount = 0;
@@ -318,7 +317,8 @@ void getSlave() {
     byte lsb = Wire.read();
     receivedWindCount = (msb << 8) | lsb;
   }
-  windspeed = (((2 * PI * radius * receivedWindCount) / period) / 1000) * 3.6;
+  circumference = 2 * PI * radius * calibrationFactor;
+  windspeed = ((circumference * receivedWindCount * 3.6) / period);
 
   // Gust
   if (Wire.available() >= 2) {
@@ -326,7 +326,7 @@ void getSlave() {
     byte lsb = Wire.read();
     receivedGustCount = (msb << 8) | lsb; // Correctly assign receivedGustCount
   }
-  gust = (((2 * PI * radius * receivedWindCount) / 3) / 1000) * 3.6;
+  gust = ((circumference * receivedGustCount * 3.6) / 3);
 }
 
 String getBatteryVoltage() {
@@ -341,14 +341,14 @@ void GSMinit() {
   // A7670-GSM Reset
   pinMode(RESET, OUTPUT);
   digitalWrite(RESET, LOW); delay(100);
-  digitalWrite(RESET, HIGH); delay(3000);
-  digitalWrite(RESET, LOW);
+  digitalWrite(RESET, HIGH); delay(100);
+  digitalWrite(RESET, LOW); delay(100);
 
   // A7670-GSM Power
   pinMode(PWR_PIN, OUTPUT);
   digitalWrite(PWR_PIN, LOW); delay(100);
-  digitalWrite(PWR_PIN, HIGH); delay(1000);
-  digitalWrite(PWR_PIN, LOW); delay(3000);
+  digitalWrite(PWR_PIN, HIGH); delay(100);
+  digitalWrite(PWR_PIN, LOW); delay(100);
   SerialMon.println(" >OK");
 
   SerialMon.print("Starting Serial Communications...");
@@ -358,8 +358,6 @@ void GSMinit() {
   SerialMon.print("Initializing modem...");
   if (!modem.init()) {
     SerialMon.println(" >Failed (Restarting in 10s)");
-    delay(10000);
-    modem.restart();
     return;
   }
   SerialMon.println(" >OK");
@@ -439,20 +437,21 @@ void collectLight() {
 void collectUV() {
   // UV Connect
   const int debounceThreshold = 10;
-  int uvPrevStatus = 0;
+  static int uvPrevStatus = 0;
   SerialMon.print("UV: ");
-  int uvStatus = analogRead(32);
+  int uvStatus = analogRead(uvPin);
   if (abs(uvStatus - uvPrevStatus) > debounceThreshold) {
     uvPrevStatus = uvStatus;
     delay(50);
-    uvStatus = analogRead(32);
+    uvStatus = analogRead(uvPin);
   }
 
-  if (uvPrevStatus != uvStatus) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
+  if (abs(uvStatus- uvPrevStatus) <= debounceThreshold) { 
+    uvPrevStatus = uvStatus;
+    SerialMon.println(" OK"); 
     getUV();
   }
+  else { SerialMon.println(" Failed"); }
   delay(10);
 }
 
@@ -499,11 +498,11 @@ void connectAPN() {
   SerialMon.println("\n=================================== Connecting to APN ===================================");
   SerialMon.printf("Connecting to %s", apn);
   while (!connectedAPN && retryCountAPN < maxRetriesAPN) {
-    if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
+    if (!modem.gprsConnect(apn)) {
       communication = "Failed";
       SerialMon.print(".");
       retryCountAPN++;
-      delay(1000);
+      delay(15000);
     }
     else {
       SerialMon.println(" >OK");
