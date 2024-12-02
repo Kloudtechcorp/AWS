@@ -283,7 +283,7 @@ String getLight() {
 
 String getUV() {
   sensorValue = analogRead(uvPin);
-  sensorVoltage = sensorValue * (3.3 / 4092);
+  sensorVoltage = sensorValue * (3.3 / 4095);
   uvIntensity = sensorVoltage * 1000;
   uvIntensityStr = String(uvIntensity);
   return uvIntensityStr;
