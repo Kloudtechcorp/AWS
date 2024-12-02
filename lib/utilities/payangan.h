@@ -38,7 +38,7 @@ const char apn[] = "smartlte";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
 const char server[] = "app.kloudtechsea.com";
-const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=BQ0V-STFB-IGPX-QSJ4";
+const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=dddd";
 String stationName = "Payangan Elementary School";
 String versionCode = "AWS";
 
@@ -256,7 +256,7 @@ void getBME(Adafruit_BME280 bme, int bus, float *temp, float *hum, float *pres) 
 
 String getUV() {
   sensorValue = analogRead(uvPin);
-  sensorVoltage = sensorValue * (3.3 / 4095);
+  sensorVoltage = sensorValue * (3.3 / 4092);
   uvIntensity = sensorVoltage * 1000;
   uvIntensityStr = String(uvIntensity);
   return uvIntensityStr;
