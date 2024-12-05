@@ -231,8 +231,8 @@ float tipValue = 0.1099, rain;
 uint16_t receivedRainCount = 0;
 
 // Wind Speed and Gust var
-float windspeed, circumference, calibrationFactor = 2.4845;
-int radius = 0.05, period = 60;
+float windspeed, circumference, calibrationFactor = 2.4845, radius = 0.05;
+int period = 60;
 uint16_t receivedWindCount = 0;
 float gust;
 uint16_t receivedGustCount = 0;
