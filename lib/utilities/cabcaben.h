@@ -540,7 +540,6 @@ void startSDCard() {
 void sendHTTPPostRequest() {
   SerialMon.println("\n========================================HTTP Post Request========================================");
   SerialMon.println("Performing HTTP POST request...");
-  client.connectionKeepAlive();
   SerialMon.printf("Connecting to %s\n", server);
 
   SerialMon.println("Making POST request securely");

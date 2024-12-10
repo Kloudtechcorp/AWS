@@ -2,8 +2,22 @@
 #include <math.h>
 #include <Wire.h>
 
-// Change whether what station to use
-#include <test.h>
+/*
+  Change whether what station to use
+  1. sabang.h     -     Sabang Fish Landing
+  2. bpsubagac.h  -     BPSU Bagac Campus
+  3. veles.h      -     Mariveles Municipal Hall
+  4. limay.h      -     Limay Physical Therapy Center
+  5. papermill.h  -     Bataan 2020
+  6. hermosa.h    -     Hermosa Water District
+  7. cabcaben.h   -     Old Cabcaben Pier
+  8. quinawan.h   -     Quinawan Integrated School
+  9. kanawan.h    -     Kanawan Integrated School
+  10. tanato.h    -     Tanato Elementary School
+  11. payangan.h  -     Payangan Elementary School
+  12. pagasa.h    -     Pag-asa Elementary School
+*/
+#include <sabang.h>
 
 void setup()
 {
@@ -26,9 +40,9 @@ void setup()
 
 void loop()
 {
-  startSDCard();
   connectAPN();
   connectServer();
+  startSDCard();
   
   SerialMon.println("\n=================================== Print results ===================================");
   printResults();

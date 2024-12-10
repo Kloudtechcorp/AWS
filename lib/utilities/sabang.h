@@ -46,7 +46,7 @@ TinyGsm modem(SerialAT);
 const int port = 443;
 bool connectedAPN = false;
 int retryCountAPN = 0;
-const int maxRetriesAPN = 10;
+const int maxRetriesAPN = 5;
 bool connectedServer = false;
 int retryCountServer = 0;
 const int maxRetriesServer = 10;
@@ -502,7 +502,7 @@ void connectAPN() {
       communication = "Failed";
       SerialMon.print(".");
       retryCountAPN++;
-      delay(1000);
+      delay(15000);
     }
     else {
       SerialMon.println(" >OK");
@@ -540,25 +540,23 @@ void startSDCard() {
 void sendHTTPPostRequest() {
   SerialMon.println("\n========================================HTTP Post Request========================================");
   SerialMon.println("Performing HTTP POST request...");
-  client.connectionKeepAlive();
   SerialMon.printf("Connecting to %s\n", server);
 
-  SerialMon.println("Making POST request securely");
-
-  String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + lightStr + "\", \"uvIntensity\":\"" + uvIntensityStr + "\", \"windDirection\":\"" + windDirStr + "\", \"windSpeed\":\"" + windSpeedStr + "\", \"precipitation\":\"" + rainStr + "\", \"gust\":\"" + gustStr + "\", \"T1\":\"" + t1Str + "\", \"T2\":\"" + t2Str + "\", \"T3\":\"" + t3Str + "\", \"H1\":\"" + h1Str + "\", \"H2\":\"" + h2Str + "\", \"H3\":\"" + h3Str + "\", \"P1\":\"" + p1Str + "\", \"P2\":\"" + p2Str + "\", \"P3\":\"" + p3Str + "\", \"batteryVoltage\":\"" + batteryStr + "\"}";
-
   SerialMon.println("\n=========================================POST Data ============================================");
+  String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + lightStr + "\", \"uvIntensity\":\"" + uvIntensityStr + "\", \"windDirection\":\"" + windDirStr + "\", \"windSpeed\":\"" + windSpeedStr + "\", \"precipitation\":\"" + rainStr + "\", \"gust\":\"" + gustStr + "\", \"T1\":\"" + t1Str + "\", \"T2\":\"" + t2Str + "\", \"T3\":\"" + t3Str + "\", \"H1\":\"" + h1Str + "\", \"H2\":\"" + h2Str + "\", \"H3\":\"" + h3Str + "\", \"P1\":\"" + p1Str + "\", \"P2\":\"" + p2Str + "\", \"P3\":\"" + p3Str + "\", \"batteryVoltage\":\"" + batteryStr + "\"}";
   SerialMon.println(postData);
 
   client.beginRequest();
   client.post(resource);
+
   client.sendHeader("Content-Type", "application/json");
   client.sendHeader("Content-Length", postData.length());
-  client.sendHeader("Connection", "Close");
+  client.sendHeader("Connection", "close");
+
   client.beginBody();
   client.print(postData);
   client.endRequest();
-  
+
   int status_code = client.responseStatusCode();
   String response = client.responseBody();
   SerialMon.printf("Status code: %d\n", status_code);
