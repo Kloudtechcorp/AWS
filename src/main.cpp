@@ -17,7 +17,7 @@
   11. payangan.h  -     Payangan Elementary School
   12. pagasa.h    -     Pag-asa Elementary School
 */
-#include <sabang.h>
+#include <test.h>
 
 void setup()
 {
