@@ -3,61 +3,33 @@
 // Serial Monitors
 #define SerialMon Serial
 
-// GSM Pins - GSM Intiation
-#define GSM_PIN "0000"
-#define UART_BAUD 115200
-#define PIN_DTR 25
-#define PIN_TX 26
-#define PIN_RX 27
-#define PWR_PIN 4
-#define PIN_RI 33
-#define RESET 5
-#define BAT_ADC 35
-#define BAT_EN 12
-
-// GSM Library
-#define TINY_GSM_MODEM_SIM7600
-HardwareSerial SerialAT(1);
-
-// GSM RX/TX Buffer - GSM Intiation
-#if !defined(TINY_GSM_RX_BUFFER)
-#define TINY_GSM_RX_BUFFER 1024
-#endif
-#define TINY_GSM_YIELD() \
-  {                      \
-    delay(2);            \
-  }
-
 // GSM and httpclient libraries
-#include <TinyGsmClient.h>
-#include <ArduinoHttpClient.h>
-#include "SSLClient.h"
 #include <WiFi.h>
+#include <ArduinoHttpClient.h>
+#include <WiFiUdp.h>
+#include <NTPClient.h>
+#include <TimeLib.h>
 
 // Website Credentials
-// const char apn[] = "smartlte";
-// const char gprsUser[] = "";
-// const char gprsPass[] = "";
 const char* ssid = "KT 2.4";
 const char* password = "J@yGsumm!t";
 const char server[] = "app.kloudtechsea.com";
-const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=YDEI-347Z-JWOI-1NF6";
+const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=6TD0-5YIQ-8QQ0-JRMO";
 String stationName = "Test";
 String versionCode = "AWS";
-
-TinyGsm modem(SerialAT);
-const int port = 443;
-bool connectedAPN = false;
-int retryCountAPN = 0;
-const int maxRetriesAPN = 5;
+int port = 8080;
 bool connectedServer = false;
 int retryCountServer = 0;
 const int maxRetriesServer = 10;
+WiFiClient wifi;
+HttpClient client = HttpClient(wifi, server, port);
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "asia.pool.ntp.org", 28800);
 
-// HTTPS Transport
-TinyGsmClient base_client(modem, 0);
-SSLClient secure_layer(&base_client);
-HttpClient client = HttpClient(secure_layer, server, port);
+char d[32], f[32];
+String dateTime, fileName;
+byte last_second, second_, minute_, hour_, day_, month_;
+int year_;
 
 // String Parameters
 String t1Str = "";
@@ -76,7 +48,6 @@ String windSpeedStr = "";
 String rainStr = "";
 String gustStr = "";
 String batteryStr = "";
-String communication = "";
 
 // SD Card Definitions
 #include "FS.h"
@@ -119,28 +90,24 @@ void createHeader(fs::FS &fs, String path, String message)
 }
 
 // Time
-#include <time.h>
-// NTP server and timezone
-const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset_sec = 0; // Adjust for your timezone (e.g., GMT+1 = 3600)
-const int   daylightOffset_sec = 0;
-
 void getTime() {
-  // Configure time via NTP
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  // Get current time
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return;
-  }
-  // Save time in dateTime variable
-  char buffer[30];
-  strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &timeinfo);
-  dateTime = String(buffer);
+  timeClient.update();  // Update time from NTP server
+  unsigned long unix_epoch = timeClient.getEpochTime();  // Get current epoch time
+  second_ = second(unix_epoch);  // Extract second from epoch time
+  if (last_second != second_)
+  {
+    minute_ = minute(unix_epoch);  // Extract minute from epoch time
+    hour_ = hour(unix_epoch);  // Extract hour from epoch time
+    day_ = day(unix_epoch);  // Extract day from epoch time
+    month_ = month(unix_epoch);  // Extract month from epoch time
+    year_ = year(unix_epoch);  // Extract year from epoch time
 
-  Serial.println("Time obtained:");
-  Serial.println(dateTime);
+    // Format and print NTP time on Serial monitor
+    sprintf(d, "%02d:%02d:%02d %02d/%02d/%02d", hour_, minute_, second_, day_, month_, year_);
+    dateTime = String(d);
+    sprintf(f, "/%02d/%02d/%02d.csv, day_, month_, year_");
+    fileName = String(f);
+  }
 }
 
 // Saving to SD Card
@@ -151,9 +118,9 @@ void logDataToSDCard() {
     getTime();
     SerialMon.println("Datetime: " + dateTime);
     SerialMon.println("Filename:" + fileName);
-    sprintf(data, ", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", 
+    sprintf(data, ", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", 
             t1Str, h1Str, p1Str, t2Str, h2Str, p2Str, t3Str, h3Str, p3Str, 
-            windDirStr, lightStr, uvIntensityStr, rainStr, windSpeedStr, communication);    
+            windDirStr, lightStr, uvIntensityStr, rainStr, windSpeedStr);    
     SerialMon.println("Data: " + String(data));
     String log = dateTime + data;
 
@@ -319,7 +286,6 @@ void printResults() {
   SerialMon.println("Gust = " + gustStr);
   SerialMon.println("Battery Voltage = " + batteryStr);
   SerialMon.println("Time: " + dateTime);
-  SerialMon.println("Communication Status: " + communication);
 }
 
 void collectTHP() {
@@ -436,13 +402,12 @@ void connectWiFi() {
   SerialMon.print("Connecting to "); SerialMon.println(ssid);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
+    delay(500);
     SerialMon.print(".");
   }
   SerialMon.println("\nWiFi Connected!");
   SerialMon.print("IP Address: "); SerialMon.println(WiFi.localIP());
 }
-
 
 void startSDCard() {
   SerialMon.println("\n=================================== SD Card Initializing ===================================");
@@ -452,25 +417,43 @@ void startSDCard() {
   logDataToSDCard();
 }
 
-void sendDataToServer() {
-  if (WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-    http.begin(server);
-    http.addHeader("Content-Type", "application/json");
-    String payload = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + lightStr + "\", \"uvIntensity\":\"" + uvIntensityStr + "\", \"windDirection\":\"" + windDirStr + "\", \"windSpeed\":\"" + windSpeedStr + "\", \"precipitation\":\"" + rainStr + "\", \"gust\":\"" + gustStr + "\", \"T1\":\"" + t1Str + "\", \"T2\":\"" + t2Str + "\", \"T3\":\"" + t3Str + "\", \"H1\":\"" + h1Str + "\", \"H2\":\"" + h2Str + "\", \"H3\":\"" + h3Str + "\", \"P1\":\"" + p1Str + "\", \"P2\":\"" + p2Str + "\", \"P3\":\"" + p3Str + "\", \"batteryVoltage\":\"" + batteryStr + "\"}";
-    int httpResponseCode = http.POST(payload);
-    if (httpResponseCode > 0) {
-      SerialMon.print("HTTP Response code: ");
-      SerialMon.println(httpResponseCode);
-      communication = "Success";
-    } else {
-      SerialMon.print("Error code: ");
-      SerialMon.println(httpResponseCode);
-      communication = "Failed";
+void connectServer() {
+  SerialMon.println("\n=================================== Connecting to Server ===================================");
+  SerialMon.printf("Connecting to %s", server);
+
+  while (!connectedServer && retryCountServer < maxRetriesServer) {
+    if (!wifi.connect(server, port)) {
+      SerialMon.print(".");
+      retryCountServer++;
+      delay(1000);
     }
-    http.end();
-  } else {
-    SerialMon.println("WiFi Disconnected");
-    communication = "Disconnected";
+    else {
+      SerialMon.println(" >OK");
+      connectedServer = true;
+    }
   }
+}
+
+void sendDataToServer() {
+  SerialMon.println("\n=========================================Making POST request============================================");
+  SerialMon.printf("Connecting to %s: ", server);
+
+  String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + lightStr + "\", \"uvIntensity\":\"" + uvIntensityStr + "\", \"windDirection\":\"" + windDirStr + "\", \"windSpeed\":\"" + windSpeedStr + "\", \"precipitation\":\"" + rainStr + "\", \"gust\":\"" + gustStr + "\", \"T1\":\"" + t1Str + "\", \"T2\":\"" + t2Str + "\", \"T3\":\"" + t3Str + "\", \"H1\":\"" + h1Str + "\", \"H2\":\"" + h2Str + "\", \"H3\":\"" + h3Str + "\", \"P1\":\"" + p1Str + "\", \"P2\":\"" + p2Str + "\", \"P3\":\"" + p3Str + "\", \"batteryVoltage\":\"" + batteryStr + "\"}";
+  SerialMon.println(postData);
+
+  client.beginRequest();
+  client.post(resource);
+
+  client.sendHeader("Content-Type", "application/json");
+  client.sendHeader("Content-Length", postData.length());
+  client.sendHeader("Connection", "close");
+
+  client.beginBody();
+  client.print(postData);
+  client.endRequest();
+
+  int status_code = client.responseStatusCode();
+  String response = client.responseBody();
+  SerialMon.printf("Status code: %d\n", status_code);
+  SerialMon.println("Response: " + response);
 }
