@@ -14,22 +14,13 @@
 const char* ssid = "KT 2.4";
 const char* password = "J@yGsumm!t";
 const char server[] = "app.kloudtechsea.com";
-const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=6TD0-5YIQ-8QQ0-JRMO";
-String stationName = "Test";
+const char resource[] = "/api/v1/weather/insert-data?serial=BZIH-W8DI-62JP-LAH2";
+String stationName = "Quinawan Integrated School";
 String versionCode = "AWS";
-int port = 8080;
-bool connectedServer = false;
-int retryCountServer = 0;
-const int maxRetriesServer = 10;
+
+int port = 443;
 WiFiClient wifi;
 HttpClient client = HttpClient(wifi, server, port);
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "asia.pool.ntp.org", 28800);
-
-char d[32], f[32];
-String dateTime, fileName;
-byte last_second, second_, minute_, hour_, day_, month_;
-int year_;
 
 // String Parameters
 String t1Str = "";
@@ -90,6 +81,13 @@ void createHeader(fs::FS &fs, String path, String message)
 }
 
 // Time
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "asia.pool.ntp.org", 28800);
+char d[32], f[32];
+String dateTime, fileName;
+byte last_second, second_, minute_, hour_, day_, month_;
+int year_;
+
 void getTime() {
   timeClient.update();  // Update time from NTP server
   unsigned long unix_epoch = timeClient.getEpochTime();  // Get current epoch time
@@ -417,36 +415,17 @@ void startSDCard() {
   logDataToSDCard();
 }
 
-void connectServer() {
-  SerialMon.println("\n=================================== Connecting to Server ===================================");
-  SerialMon.printf("Connecting to %s", server);
-
-  while (!connectedServer && retryCountServer < maxRetriesServer) {
-    if (!wifi.connect(server, port)) {
-      SerialMon.print(".");
-      retryCountServer++;
-      delay(1000);
-    }
-    else {
-      SerialMon.println(" >OK");
-      connectedServer = true;
-    }
-  }
-}
-
 void sendDataToServer() {
   SerialMon.println("\n=========================================Making POST request============================================");
-  SerialMon.printf("Connecting to %s: ", server);
 
   String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + lightStr + "\", \"uvIntensity\":\"" + uvIntensityStr + "\", \"windDirection\":\"" + windDirStr + "\", \"windSpeed\":\"" + windSpeedStr + "\", \"precipitation\":\"" + rainStr + "\", \"gust\":\"" + gustStr + "\", \"T1\":\"" + t1Str + "\", \"T2\":\"" + t2Str + "\", \"T3\":\"" + t3Str + "\", \"H1\":\"" + h1Str + "\", \"H2\":\"" + h2Str + "\", \"H3\":\"" + h3Str + "\", \"P1\":\"" + p1Str + "\", \"P2\":\"" + p2Str + "\", \"P3\":\"" + p3Str + "\", \"batteryVoltage\":\"" + batteryStr + "\"}";
   SerialMon.println(postData);
 
   client.beginRequest();
-  client.post(resource);
-
-  client.sendHeader("Content-Type", "application/json");
-  client.sendHeader("Content-Length", postData.length());
-  client.sendHeader("Connection", "close");
+  client.post("/api/v1/weather/insert-data?serial=BZIH-W8DI-62JP-LAH2");
+  client.sendHeader("Content-Type:", "application/x-www-form-urlencoded");
+  client.sendHeader("Content-Length:", postData.length());
+  client.sendHeader("Connection:", "close");
 
   client.beginBody();
   client.print(postData);

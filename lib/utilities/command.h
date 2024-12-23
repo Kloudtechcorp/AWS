@@ -38,8 +38,8 @@ const char apn[] = "smartlte";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
 const char server[] = "app.kloudtechsea.com";
-const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=dddd";
-String stationName = "Payangan Elementary School";
+const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=MHY3-ZOIV-OA2O-Q0ZT";
+String stationName = "Bataan Command Center";
 String versionCode = "AWS";
 
 TinyGsm modem(SerialAT);

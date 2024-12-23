@@ -8,13 +8,13 @@
   2. bpsubagac.h  -     BPSU Bagac Campus
   3. veles.h      -     Mariveles Municipal Hall
   4. limay.h      -     Limay Physical Therapy Center
-  5. papermill.h  -     Bataan 2020
-  6. hermosa.h    -     Hermosa Water District
+  5. command.h    -     Bataan Command Center
+  6. hermosa.h    -     Hermosa Municipal Hall
   7. cabcaben.h   -     Old Cabcaben Pier
   8. quinawan.h   -     Quinawan Integrated School
   9. kanawan.h    -     Kanawan Integrated School
   10. tanato.h    -     Tanato Elementary School
-  11. payangan.h  -     Payangan Elementary School
+  11. bpsudnl.h   -     BPSU - Dinalupihan Campus
   12. pagasa.h    -     Pag-asa Elementary School
 */
 #include <testWiFi.h>
@@ -83,7 +83,6 @@ void setup()
 
 void loop()
 {
-  connectServer();
   startSDCard();
   
   SerialMon.println("\n=================================== Print results ===================================");
