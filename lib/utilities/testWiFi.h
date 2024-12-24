@@ -101,9 +101,9 @@ void getTime() {
     year_ = year(unix_epoch);  // Extract year from epoch time
 
     // Format and print NTP time on Serial monitor
-    sprintf(d, "%02d:%02d:%02d %02d/%02d/%02d", hour_, minute_, second_, day_, month_, year_);
+    sprintf(d, "%02d-%02d-%02d %02d:%02d:%02d", year_, month_, day_, hour_, minute_, second_);
     dateTime = String(d);
-    sprintf(f, "/%02d/%02d/%02d.csv, day_, month_, year_");
+    sprintf(f, "/%02d/%02d/%02d.csv", day_, month_, year_);
     fileName = String(f);
   }
 }
