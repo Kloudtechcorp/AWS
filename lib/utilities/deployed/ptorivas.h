@@ -1,6 +1,7 @@
 #include <Arduino.h>
+#include <math.h>
 
-// Serial Monitors
+// ESP32 Serial Monitor
 #define SerialMon Serial
 
 // GSM Pins - GSM Intiation
@@ -34,14 +35,13 @@ HardwareSerial SerialAT(1);
 #include "SSLClient.h"
 
 // Website Credentials
-const char apn[] = "smartlte";
+const char apn[] = "http.globe.com.ph";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-// AWS Server 2 - Lina
 const char server[] = "app.kloudtechsea.com";
-const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=RQCA-CCN4-5GY2-UPVZ";
-String stationName = "Lina";
-String versionCode = "AWS";
+const char resource[] = "https://app.kloudtechsea.com/api/v1/weather/insert-data?serial=TGFQ-6QLB-LVKS-HKKC";
+String stationName = "Pto. Rivas";
+String versionCode = "AWS-1 Main";
 
 TinyGsm modem(SerialAT);
 const int port = 443;
@@ -185,7 +185,7 @@ void logDataToSDCard() {
     getTime();
     SerialMon.println("Datetime: " + dateTime);
     SerialMon.println("Filename:" + fileName);
-    sprintf(data, "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", 
+    sprintf(data, ", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", 
             t1Str, h1Str, p1Str, t2Str, h2Str, p2Str, t3Str, h3Str, p3Str, 
             windDirStr, lightStr, uvIntensityStr, rainStr, windSpeedStr, communication);    
     SerialMon.println("Data: " + String(data));
@@ -202,10 +202,20 @@ void logDataToSDCard() {
 // BME280 Library and Variables
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
-Adafruit_BME280 bme1;
-Adafruit_BME280 bme2;
-Adafruit_BME280 bme3;
-float t1, h1, p1, t2, h2, p2, t3, h3, p3;
+Adafruit_BME280 bme;
+float t1, h1, p1;
+
+// DHT22 Library and Variables
+#include <DHT.h>
+#define DHTPIN 04
+#define DHTTYPE DHT22
+DHT dht(DHTPIN, DHTTYPE);
+float h2;
+
+// BMP180 Library and Variables
+#include <Adafruit_BMP085.h>
+Adafruit_BMP085 bmp;
+float t2, p2;
 
 // AS5600 Variables
 int magnetStatus, lowbyte, rawAngle, correctedAngle;
@@ -222,7 +232,7 @@ int uvIntensity;
 // BH1750 Library and Variables
 #include <BH1750.h>
 BH1750 lightMeter;
-float lux, irradiance;
+float lux;
 
 // Slave Address
 #define SLAVE 0x03
@@ -232,8 +242,8 @@ float tipValue = 0.1099, rain;
 uint16_t receivedRainCount = 0;
 
 // Wind Speed and Gust var
-float windspeed;
-int radius = 50, period = 60;
+float windspeed, circumference, calibrationFactor = 2.4845, radius = 0.05;
+int period = 60;
 uint16_t receivedWindCount = 0;
 float gust;
 uint16_t receivedGustCount = 0;
@@ -242,17 +252,32 @@ uint16_t receivedGustCount = 0;
 #include <Adafruit_INA219.h>
 Adafruit_INA219 ina219;
 
-void select_bus(uint8_t bus) {
-  Wire.beginTransmission(0x70);
-  Wire.write(1 << bus);
-  Wire.endTransmission();
+void getBME() {
+    t1 = bme.readTemperature();
+    h1 = bme.readHumidity();
+    p1 = bme.readPressure() / 100.0F;
+    t1Str = String(t1);
+    h1Str = String(h1);
+    p1Str = String(p1);
 }
 
-void getBME(Adafruit_BME280 bme, int bus, float *temp, float *hum, float *pres) {
-  select_bus(bus);
-  *temp = bme.readTemperature();
-  *hum = bme.readHumidity();
-  *pres = bme.readPressure() / 100.0F;
+String getDHT() {
+    h2 = dht.readHumidity();
+    h2Str = String(h2);
+    return h2Str;
+}
+
+void getBMP() {
+    t2 = bmp.readTemperature();
+    p2 = bmp.readPressure() / 100.0F;
+    t2Str = String(t2);
+    p2Str = String(p2);
+}
+
+String getLight() {
+  lux = lightMeter.readLightLevel();
+  lightStr = String(lux);
+  return lightStr;
 }
 
 String getUV() {
@@ -261,12 +286,6 @@ String getUV() {
   uvIntensity = sensorVoltage * 1000;
   uvIntensityStr = String(uvIntensity);
   return uvIntensityStr;
-}
-
-String getLight() {
-  lux = lightMeter.readLightLevel();
-  lightStr = String(lux);
-  return lightStr;
 }
 
 void ReadRawAngle() {
@@ -318,15 +337,16 @@ void getSlave() {
     byte lsb = Wire.read();
     receivedWindCount = (msb << 8) | lsb;
   }
-  windspeed = (((2 * PI * radius * receivedWindCount) / period) / 1000) * 3.6;
+  circumference = 2 * PI * radius * calibrationFactor;
+  windspeed = ((circumference * receivedWindCount * 3.6) / period);
 
   // Gust
   if (Wire.available() >= 2) {
     byte msb = Wire.read();
     byte lsb = Wire.read();
-    receivedGustCount = (msb << 8) | lsb; // Correctly assign receivedGustCount
+    receivedGustCount = (msb << 8) | lsb;
   }
-  gust = (((2 * PI * radius * receivedWindCount) / 3) / 1000) * 3.6;
+  gust = ((circumference * receivedGustCount * 3.6) / 3);
 }
 
 String getBatteryVoltage() {
@@ -358,8 +378,6 @@ void GSMinit() {
   SerialMon.print("Initializing modem...");
   if (!modem.init()) {
     SerialMon.println(" >Failed (Restarting in 10s)");
-    delay(10000);
-    modem.restart();
     return;
   }
   SerialMon.println(" >OK");
@@ -388,42 +406,28 @@ void printResults() {
 }
 
 void collectTHP() {
-  // BME 1 Connect
-  SerialMon.print("BME 1: ");
-  select_bus(2);
-  if (!bme1.begin(0x76)) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getBME(bme1, 2, &t1, &h1, &p1);
-    t1Str = String(t1);
-    h1Str = String(h1);
-    p1Str = String(p1);
-  }
-  delay(10);
-  // BME 2 Connect
-  SerialMon.print("BME 2: ");
-  select_bus(3);
-  if (!bme2.begin(0x76)) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getBME(bme2, 3, &t2, &h2, &p2);
-    t2Str = String(t2);
-    h2Str = String(h2);
-    p2Str = String(p2);
-  }
-  delay(10);
-  // BME 3 Connect
-  SerialMon.print("BME 3: ");
-  select_bus(4);
-  if (!bme3.begin(0x76)) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
-    getBME(bme3, 4, &t3, &h3, &p3);
-    t3Str = String(t3);
-    h3Str = String(h3);
-    p3Str = String(p3);
-  }
-  delay(10);
+    // BME Connect
+    SerialMon.print("BME280: ");
+    if (!bme.begin(0x76)) { SerialMon.println(" Failed"); }
+    else {
+        SerialMon.println(" OK");
+        getBME();
+    }
+    // BMP Connect
+    SerialMon.print("BMP180: ");
+    if (!bmp.begin()) { SerialMon.println(" Failed"); }
+    else {
+        SerialMon.println(" OK");
+        getBMP();
+    }
+    // DHT Connect
+    SerialMon.print("DHT22: ");
+    dht.begin();
+    if (isnan(dht.readHumidity())) { SerialMon.println(" Failed"); }
+    else {
+        SerialMon.println(" OK");
+        getDHT();
+    }
 }
 
 void collectLight() {
@@ -439,20 +443,21 @@ void collectLight() {
 void collectUV() {
   // UV Connect
   const int debounceThreshold = 10;
-  int uvPrevStatus = 0;
+  static int uvPrevStatus = 0;
   SerialMon.print("UV: ");
-  int uvStatus = analogRead(32);
+  int uvStatus = analogRead(uvPin);
   if (abs(uvStatus - uvPrevStatus) > debounceThreshold) {
     uvPrevStatus = uvStatus;
     delay(50);
-    uvStatus = analogRead(32);
+    uvStatus = analogRead(uvPin);
   }
 
-  if (uvPrevStatus != uvStatus) { SerialMon.println(" Failed"); }
-  else {
-    SerialMon.println(" OK");
+  if (abs(uvStatus- uvPrevStatus) <= debounceThreshold) { 
+    uvPrevStatus = uvStatus;
+    SerialMon.println(" OK"); 
     getUV();
   }
+  else { SerialMon.println(" Failed"); }
   delay(10);
 }
 
@@ -541,7 +546,6 @@ void startSDCard() {
 void sendHTTPPostRequest() {
   SerialMon.println("\n========================================HTTP Post Request========================================");
   SerialMon.println("Performing HTTP POST request...");
-  client.connectionKeepAlive();
   SerialMon.printf("Connecting to %s\n", server);
 
   SerialMon.println("Making POST request securely");
