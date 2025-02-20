@@ -77,8 +77,8 @@ extern String stationName;
 
 // WiFi Options
 #ifdef WIFI_1
-  extern const char* ssid = "KT 2.4";
-  extern const char* password = "J@yGsumm!t";
+  extern const char* ssid = "quinawan-kloudtrack-wifi";
+  extern const char* password = "Kloudtech123456789!";
 #endif
 
 #endif // DEVICE_CONFIG_H

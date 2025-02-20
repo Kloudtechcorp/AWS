@@ -22,6 +22,9 @@ String resource = "/api/v1/weather/insert-data?serial=" + deviceSerial;
 const int port = 443;
 WiFiClientSecure wifi;
 HttpClient client = HttpClient(wifi, server, port);
+const int maxRetriesWifi = 20;
+int retryCountWifi = 0;
+bool connectedWifi = false;
 
 // Time
 WiFiUDP ntpUDP;
@@ -147,13 +150,21 @@ void connectWiFi() {
   SerialMon.print("Connecting to "); SerialMon.println(ssid);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED && retryCountWifi < maxRetriesWifi) {
     delay(500);
     SerialMon.print(".");
+    retryCountWifi++;
   }
-  communication = "Success";
-  SerialMon.println("\nWiFi Connected!");
-  SerialMon.print("IP Address: "); SerialMon.println(WiFi.localIP());
+  if (WiFi.status() == WL_CONNECTED) {
+    communication = "Success";
+    connectedWifi = true;
+    SerialMon.println("\nWiFi connected!");
+    SerialMon.print("IP Address: "); SerialMon.println(WiFi.localIP());
+  }
+  else {
+    communication = "Failed";
+    SerialMon.println("\nWiFi not connected!");
+  }
 }
 
 void sendDataToServer() {
