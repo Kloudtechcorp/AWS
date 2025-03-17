@@ -80,8 +80,9 @@ void getBME(Adafruit_BME280 bme, int bus, float *temp, float *hum, float *pres) 
 }
 
 String getUV() {
+  analogReadResolution(12);
   sensorValue = analogRead(uvPin);
-  sensorVoltage = sensorValue * (3.3 / 4095);
+  sensorVoltage = sensorValue * (3.3 / 4095.0);
   uvIntensity = sensorVoltage * 1000;
   uvIntensityStr = String(uvIntensity);
   return uvIntensityStr;

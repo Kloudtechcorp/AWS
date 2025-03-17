@@ -6,7 +6,7 @@
 // #define USE_GSM         // Choose between GSM or WiFi (Uncomment to use GSM Mode)
 // Network Credentials
 #ifdef USE_GSM
-  #define GLOBE_APN       
+  #define SMART_APN       
 #else
   #define WIFI_1
 #endif

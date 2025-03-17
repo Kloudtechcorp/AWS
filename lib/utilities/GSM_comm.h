@@ -81,6 +81,22 @@ uint32_t AutoBaud() {
   return 0;
 }
 
+#define TIME_THRESHOLD 70  // Allow up to 70s jump (for 1-min sleep)
+String lastValidTime = "";  // Store last valid time
+unsigned long lastEpoch = 0;  // Store last valid epoch timestamp
+
+// Function to convert date/time to UNIX timestamp
+unsigned long convertToEpoch(String year, String month, String day, String hour, String minute, String second) {
+  struct tm t;
+  t.tm_year = year.toInt() + 2000 - 1900;
+  t.tm_mon = month.toInt() - 1;
+  t.tm_mday = day.toInt();
+  t.tm_hour = hour.toInt();
+  t.tm_min = minute.toInt();
+  t.tm_sec = second.toInt();
+  return mktime(&t);
+}
+
 void getTime() {
   response = "";
   SerialAT.print("AT+CCLK?\r\n");
@@ -89,6 +105,7 @@ void getTime() {
   if (response != "") {
     int startIndex = response.indexOf("+CCLK: \"");
     int endIndex = response.indexOf("\"", startIndex + 8);
+    if (startIndex == -1 || endIndex == -1) return;  // Invalid response
     String dateTimeString = response.substring(startIndex + 8, endIndex);
 
     int dayIndex = dateTimeString.indexOf("/");
@@ -112,8 +129,23 @@ void getTime() {
     if (plusIndex != -1) {
       second = second.substring(0, plusIndex);
     }
-    dateTime = "20" + year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
-    fileName = "/" + day + month + year + ".csv";
+    // dateTime = "20" + year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+    // fileName = "/" + month + day + "20" + year + ".csv";
+
+    // Convert to epoch time
+    unsigned long newEpoch = convertToEpoch(year, month, day, hour, minute, second);
+
+    // Filtering: Ignore large jumps
+    if (lastEpoch == 0 || abs((long)newEpoch - (long)lastEpoch) <= TIME_THRESHOLD) {  
+      lastEpoch = newEpoch;
+      lastValidTime = "20" + year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+      dateTime = lastValidTime;
+      fileName = "/" + month + day + "20" + year + ".csv";
+    } else {
+      Serial.print("Time jump detected ("); 
+      Serial.print(abs((long)newEpoch - (long)lastEpoch));
+      Serial.println("s), ignoring...");
+    }
   }
 }
 
@@ -126,7 +158,7 @@ void getTime() {
 #define MOSI 15
 #define CS 13
 SPIClass spi = SPIClass(VSPI);
-char data[100];
+char data[256];
 
 // SD Card Parameters
 void appendFile(fs::FS &fs, String path, String message)
@@ -159,6 +191,7 @@ void createHeader(fs::FS &fs, String path, String message)
 
 // Saving to SD Card
 void logDataToSDCard() {
+  SD.end();
   if (!SD.begin(CS, spi)) { SerialMon.println(" >Failed. Skipping SD Storage"); }
   else {
     SerialMon.println("SD Card Initialization Complete");

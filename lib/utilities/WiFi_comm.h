@@ -28,7 +28,7 @@ bool connectedWifi = false;
 
 // Time
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "asia.pool.ntp.org", 28800);
+NTPClient timeClient(ntpUDP, "asia.pool.ntp.org", 28800, 60000);
 char d[32], f[32];
 String dateTime, fileName;
 byte last_second, second_, minute_, hour_, day_, month_;
@@ -37,20 +37,42 @@ int year_;
 void getTime() {
   timeClient.update();  // Update time from NTP server
   unsigned long unix_epoch = timeClient.getEpochTime();  // Get current epoch time
-  second_ = second(unix_epoch);  // Extract second from epoch time
-  if (last_second != second_)
-  {
-    minute_ = minute(unix_epoch);  // Extract minute from epoch time
-    hour_ = hour(unix_epoch);  // Extract hour from epoch time
-    day_ = day(unix_epoch);  // Extract day from epoch time
-    month_ = month(unix_epoch);  // Extract month from epoch time
-    year_ = year(unix_epoch);  // Extract year from epoch time
+  // second_ = second(unix_epoch);  // Extract second from epoch time
+  // if (last_second != second_)
+  // {
+  //   minute_ = minute(unix_epoch);  // Extract minute from epoch time
+  //   hour_ = hour(unix_epoch);  // Extract hour from epoch time
+  //   day_ = day(unix_epoch);  // Extract day from epoch time
+  //   month_ = month(unix_epoch);  // Extract month from epoch time
+  //   year_ = year(unix_epoch);  // Extract year from epoch time
 
-    // Format and print NTP time on Serial monitor
-    sprintf(d, "%02d-%02d-%02d %02d:%02d:%02d", year_, month_, day_, hour_, minute_, second_);
+  //   // Format and print NTP time on Serial monitor
+  //   sprintf(d, "%02d-%02d-%02d %02d:%02d:%02d", year_, month_, day_, hour_, minute_, second_);
+  //   dateTime = String(d);
+  //   sprintf(f, "/%02d%02d%02d.csv", month_, day_, year_);
+  //   fileName = String(f);
+  // }
+
+  // Convert Unix epoch time to readable format
+  struct tm *timeinfo;
+  time_t rawtime = unix_epoch;
+  timeinfo = localtime(&rawtime);
+
+  if (timeinfo->tm_year >= 70) {  // Avoid 1970 issue
+    second_ = timeinfo->tm_sec;
+    minute_ = timeinfo->tm_min;
+    hour_ = timeinfo->tm_hour;
+    day_ = timeinfo->tm_mday;
+    month_ = timeinfo->tm_mon + 1;  // Month is 0-11 in struct tm
+    year_ = timeinfo->tm_year + 1900; // Year starts from 1900
+
+    sprintf(d, "%04d-%02d-%02d %02d:%02d:%02d", year_, month_, day_, hour_, minute_, second_);
     dateTime = String(d);
-    sprintf(f, "/%02d/%02d/%02d.csv", day_, month_, year_);
+    sprintf(f, "/%02d%02d%04d.csv", month_, day_, year_);
     fileName = String(f);
+
+    Serial.print("Updated Time: ");
+    Serial.println(dateTime);
   }
 }
 
@@ -63,7 +85,7 @@ void getTime() {
 #define MOSI 15
 #define CS 13
 SPIClass spi = SPIClass(VSPI);
-char data[100];
+char data[256];
 
 // SD Card Parameters
 void appendFile(fs::FS &fs, String path, String message)
@@ -96,6 +118,7 @@ void createHeader(fs::FS &fs, String path, String message)
 
 // Saving to SD Card
 void logDataToSDCard() {
+  SD.end();
   if (!SD.begin(CS, spi)) { SerialMon.println(" >Failed. Skipping SD Storage"); }
   else {
     SerialMon.println("SD Card Initialization Complete");

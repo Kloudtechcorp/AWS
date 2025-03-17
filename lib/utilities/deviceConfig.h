@@ -56,6 +56,10 @@ extern String stationName;
   String deviceSerial = "8TMY-CICW-5EPQ-1DXX";
   String stationName = "Pag-asa Elementary School";
 #endif
+#ifdef DEMO2_STATION
+  String deviceSerial = "7FPH-H0GQ-VOM0-ZM3J";
+  String stationName = "Demo Station - Glenn";
+#endif
 
 // Choose whether to use GSM or WiFi network
 #ifdef USE_GSM
@@ -77,8 +81,8 @@ extern String stationName;
 
 // WiFi Options
 #ifdef WIFI_1
-  extern const char* ssid = "quinawan-kloudtrack-wifi";
-  extern const char* password = "Kloudtech123456789!";
+  extern const char* ssid = "KT 2.4";
+  extern const char* password = "J@yGsumm!t";
 #endif
 
 #endif // DEVICE_CONFIG_H
