@@ -2,6 +2,7 @@
 #include <math.h>
 
 // Change depending on what Station
+// DaangBago.h or Laon.h
 #include <DaangBago.h>
 
 void setup()
