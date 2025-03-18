@@ -296,8 +296,8 @@ void resetDistance(int arr[], int size) {
 void getDistance() {
    SerialMon.println("Ultrasonic Sensor");
    // Calculate Distance
-   if (node.readHoldingRegisters(0x02, 28) == node.ku8MBSuccess) {
-     distance = node.getResponseBuffer(22) * 10;
+   if (node.readHoldingRegisters(0x0222, 1) == node.ku8MBSuccess) {
+     distance = node.getResponseBuffer(0) / 10;
      distanceStr = String(distance);
      SerialMon.println("Distance: " + distanceStr);
      delay(10000);
