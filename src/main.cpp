@@ -15,7 +15,7 @@
 void setup()
 {
   SerialMon.begin(115200); Wire.begin(21, 22); delay(10);
-  SerialMon.println("\nStation Name: " + stationName);
+  // SerialMon.println("\nStation Name: " + stationName);
   #ifdef USE_GSM
     GSMinit();
     connectAPN();
@@ -31,13 +31,8 @@ void loop()
 {
   SerialMon.println("\n=================================== Sensors Status ===================================");
   getTime();
-  SerialMon.println("Date and Time: " + dateTime);
-  collectTHP();
-  collectLight();
-  collectUV();
-  collectDirection();
-  collectSlave();
-  collectBatteryV();
+  collectBME();
+  collectSHT();
   startSDCard();
 
   #ifdef USE_GSM
@@ -55,7 +50,7 @@ void loop()
     if (connectedWifi) {
       SerialMon.println("\n=================================== Print results ===================================");
       printResults();
-      sendDataToServer();
+      // sendDataToServer();
       SerialMon.println("\n========================================Closing Client========================================");
       client.stop();
       SerialMon.println(F("Server disconnected"));

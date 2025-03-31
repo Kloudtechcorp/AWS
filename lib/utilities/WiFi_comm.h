@@ -125,13 +125,12 @@ void logDataToSDCard() {
     getTime();
     SerialMon.println("Datetime: " + dateTime);
     SerialMon.println("Filename:" + fileName);
-    sprintf(data, ", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s", 
-            t1Str, h1Str, p1Str, t2Str, h2Str, p2Str, t3Str, h3Str, p3Str, 
-            windDirStr, lightStr, uvIntensityStr, rainStr, windSpeedStr, communication);    
+    sprintf(data, ", %s, %s, %s, %s, %s", 
+            t1Str, h1Str, t2Str, h2Str, communication);    
     SerialMon.println("Data: " + String(data));
     String log = dateTime + data;
 
-    createHeader(SD, fileName, "Date, Temperature 1, Humidity 1, Pressure 1, Temperature 2, Humidity 2, Pressure 2, Temperature 3, Humidity 3, Pressure 3, Wind Direction, Light Intensity, UV Intensity, Precipitation, Wind Speed, Communication");
+    createHeader(SD, fileName, "Date, Temperature 1, Humidity 1, Temperature 2, Humidity 2, Communication");
     appendFile(SD, fileName, log);
 
     SerialMon.println("Data logged successfully.");
@@ -150,20 +149,8 @@ void startSDCard() {
 void printResults() {
   SerialMon.println("T1 = " + t1Str);
   SerialMon.println("T2 = " + t2Str);
-  SerialMon.println("T3 = " + t3Str);
   SerialMon.println("H1 = " + h1Str);
   SerialMon.println("H2 = " + h2Str);
-  SerialMon.println("H3 = " + h3Str);
-  SerialMon.println("P1 = " + p1Str);
-  SerialMon.println("P2 = " + p2Str);
-  SerialMon.println("P3 = " + p3Str);
-  SerialMon.println("Light Intensity = " + lightStr);
-  SerialMon.println("UV Intensity = " + uvIntensityStr);
-  SerialMon.println("Wind Direction = " + windDirStr);
-  SerialMon.println("Wind Speed = " + windSpeedStr);
-  SerialMon.println("Rain = " + rainStr);
-  SerialMon.println("Gust = " + gustStr);
-  SerialMon.println("Battery Voltage = " + batteryStr);
   SerialMon.println("Time: " + dateTime);
   SerialMon.println("Communication Status: " + communication);
 }
@@ -190,24 +177,24 @@ void connectWiFi() {
   }
 }
 
-void sendDataToServer() {
-  wifi.setInsecure();
-  SerialMon.println("\n=========================================Making POST request============================================");
+// void sendDataToServer() {
+//   wifi.setInsecure();
+//   SerialMon.println("\n=========================================Making POST request============================================");
 
-  String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + lightStr + "\", \"uvIntensity\":\"" + uvIntensityStr + "\", \"windDirection\":\"" + windDirStr + "\", \"windSpeed\":\"" + windSpeedStr + "\", \"precipitation\":\"" + rainStr + "\", \"gust\":\"" + gustStr + "\", \"T1\":\"" + t1Str + "\", \"T2\":\"" + t2Str + "\", \"T3\":\"" + t3Str + "\", \"H1\":\"" + h1Str + "\", \"H2\":\"" + h2Str + "\", \"H3\":\"" + h3Str + "\", \"P1\":\"" + p1Str + "\", \"P2\":\"" + p2Str + "\", \"P3\":\"" + p3Str + "\", \"batteryVoltage\":\"" + batteryStr + "\"}";
-  SerialMon.println(postData);
+//   String postData = "{\"recordedAt\":\"" + dateTime + "\", \"light\":\"" + lightStr + "\", \"uvIntensity\":\"" + uvIntensityStr + "\", \"windDirection\":\"" + windDirStr + "\", \"windSpeed\":\"" + windSpeedStr + "\", \"precipitation\":\"" + rainStr + "\", \"gust\":\"" + gustStr + "\", \"T1\":\"" + t1Str + "\", \"T2\":\"" + t2Str + "\", \"T3\":\"" + t3Str + "\", \"H1\":\"" + h1Str + "\", \"H2\":\"" + h2Str + "\", \"H3\":\"" + h3Str + "\", \"P1\":\"" + p1Str + "\", \"P2\":\"" + p2Str + "\", \"P3\":\"" + p3Str + "\", \"batteryVoltage\":\"" + batteryStr + "\"}";
+//   SerialMon.println(postData);
 
-  client.beginRequest();
-  client.post(resource);
-  client.sendHeader("Content-Type", "application/json");
-  client.sendHeader("Content-Length", postData.length());
-  client.print(postData);
-  client.endRequest();
+//   client.beginRequest();
+//   client.post(resource);
+//   client.sendHeader("Content-Type", "application/json");
+//   client.sendHeader("Content-Length", postData.length());
+//   client.print(postData);
+//   client.endRequest();
 
-  int status_code = client.responseStatusCode();
-  String response = client.responseBody();
-  SerialMon.printf("Status code: %d\n", status_code);
-  SerialMon.println("Response: " + response);
-}
+//   int status_code = client.responseStatusCode();
+//   String response = client.responseBody();
+//   SerialMon.printf("Status code: %d\n", status_code);
+//   SerialMon.println("Response: " + response);
+// }
 
 #endif
