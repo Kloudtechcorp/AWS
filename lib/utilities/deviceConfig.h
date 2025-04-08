@@ -4,9 +4,9 @@
 extern String deviceSerial;
 extern String stationName;
 // Station Serial Lists
-#ifdef DEMO_STATION
-  String deviceSerial = "99NL-VII0-BCFW-TUO1";
-  String stationName = "Demo Station";
+#ifdef DEMO_MARIA_STATION
+  String deviceSerial = "PUSI-CJ6Y-74JL-P5YE";
+  String stationName = "Demo Station - Maria";
 #endif
 #ifdef SABANG_STATION
   String deviceSerial = "6TD0-5YIQ-8QQ0-JRMO";
@@ -56,8 +56,8 @@ extern String stationName;
   String deviceSerial = "8TMY-CICW-5EPQ-1DXX";
   String stationName = "Pag-asa Elementary School";
 #endif
-#ifdef DEMO2_STATION
-  String deviceSerial = "7FPH-H0GQ-VOM0-ZM3J";
+#ifdef DEMO_GLENN_STATION
+  String deviceSerial = "EDIG-GEKZ-WQSS-JNY7";
   String stationName = "Demo Station - Glenn";
 #endif
 

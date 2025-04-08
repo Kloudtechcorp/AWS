@@ -1,8 +1,8 @@
-#include <Arduino.h>
+#include <Arduino.h> 
 #include <math.h>
 #include <Wire.h>
 
-#define DEMO_STATION      // Choose a location/station
+#define DEMO_MARIA_STATION      // Choose a location/station
 // #define USE_GSM         // Choose between GSM or WiFi (Uncomment to use GSM Mode)
 // Network Credentials
 #ifdef USE_GSM

@@ -18,7 +18,7 @@ extern const char* ssid;
 extern const char* password;
 const char server[] = "app.kloudtechsea.com";
 extern String deviceSerial;
-String resource = "/api/v1/weather/insert-data?serial=" + deviceSerial;
+String resource = "/api/test/weather/insert-data?serial=" + deviceSerial;
 const int port = 443;
 WiFiClientSecure wifi;
 HttpClient client = HttpClient(wifi, server, port);
