@@ -1,7 +1,7 @@
 #ifndef GSM_COMM_H
 #define GSM_COMM_H
 
-#include <sensors.h>
+#include <ptorivas.h>
 // Serial Monitors
 #define SerialMon Serial
 

@@ -60,6 +60,10 @@ extern String stationName;
   String deviceSerial = "EDIG-GEKZ-WQSS-JNY7";
   String stationName = "Demo Station - Glenn";
 #endif
+#ifdef PTORIVAS_STATION
+  String deviceSerial = "TGFQ-6QLB-LVKS-HKKC";
+  String stationName = "Pto. Rivas Fish Landing";
+#endif
 
 // Choose whether to use GSM or WiFi network
 #ifdef USE_GSM
