@@ -1,0 +1,13 @@
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+name: CI
+
+jobs:
+  spelling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: codespell-project/actions-codespell@v2

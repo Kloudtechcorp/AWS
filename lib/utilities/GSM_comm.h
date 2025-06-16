@@ -6,7 +6,7 @@
 // Serial Monitors
 #define SerialMon Serial
 
-// GSM Pins - GSM Intiation
+// GSM Pins - GSM Initiation
 #define GSM_PIN "0000"
 #define UART_BAUD 115200
 #define PIN_DTR 25
@@ -22,7 +22,7 @@
 #define TINY_GSM_MODEM_SIM7600
 HardwareSerial SerialAT(1);
 
-// GSM RX/TX Buffer - GSM Intiation
+// GSM RX/TX Buffer - GSM Initiation
 #if !defined(TINY_GSM_RX_BUFFER)
 #define TINY_GSM_RX_BUFFER 1024
 #endif
