@@ -1,6 +1,7 @@
 #ifndef GSM_COMM_H
 #define GSM_COMM_H
 
+// Change to #include <sensor.h> if you want to use other station
 #include <ptorivas.h>
 // Serial Monitors
 #define SerialMon Serial
