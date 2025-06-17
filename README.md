@@ -12,3 +12,13 @@
 
 1. Make sure the device is connected to the computer and detectable by PlatformIO.
 2. Run `PlatformIO: Upload` or `PlatformIO: Upload and Monitor` in VSCode to upload the firmware to the device.
+
+### Testing
+
+For testing purposes, the resource path of POST request, `/api/{version}/weather/insert-data?serial={serial}`, can be modified, where `{version}` is the API version (e.g., `v1`, `test`) and `{serial}` is the serial number of the station. For example,
+
+```
+/api/test/weather/insert-data?serial=XXXX-XXXX-XXXX-XXXX
+```
+
+The test server dashboard can then be accessed at `test.kloudtechsea.com`, requiring a valid username and password to log in. The dashboard will display the data sent from the weather station.
