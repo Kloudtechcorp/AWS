@@ -9,6 +9,7 @@
 
 const uint8_t UV_PIN = 32;
 
+const int BME_ADDR = 0x76;
 const int BME_WIRE_ADDR = 0x70;
 const int AS5600_ADDR = 0x36;
 const int AS5600_ANGLE_REG = 0x0E;
@@ -25,10 +26,6 @@ const int PERIOD = 60;
 
 Preferences preferences;
 
-Adafruit_BME280 bme1;
-Adafruit_BME280 bme2;
-Adafruit_BME280 bme3;
-
 BH1750 lightMeter;
 
 Adafruit_INA219 ina219;
@@ -40,6 +37,68 @@ bool isDirectionReversed = false;
 SensorManager::SensorManager()
 {
 }
+
+#ifdef PTORIVAS_STATION
+#include <Adafruit_BMP085.h>
+#include <DHT.h>
+
+const uint8_t DHT_PIN = 4;
+
+Adafruit_BME280 bme;
+
+Adafruit_BMP085 bmp;
+
+DHT dht(4, DHT22);
+
+void SensorManager::updateTemperatureHumidityPressure()
+{
+    // BME Connect
+    SerialMon.print("BME280: ");
+    if (!bme.begin(BME_ADDR))
+    {
+        SerialMon.println(" Failed");
+    }
+    else
+    {
+        SerialMon.println(" OK");
+
+        _temperature1 = bme.readTemperature();
+        _humidity1 = bme.readHumidity();
+        _pressure1 = bme.readPressure() / 100.0F;
+    }
+
+    // BMP Connect
+    SerialMon.print("BMP180: ");
+    if (!bmp.begin())
+    {
+        SerialMon.println(" Failed");
+    }
+    else
+    {
+        SerialMon.println(" OK");
+        _temperature2 = bmp.readTemperature();
+        _pressure2 = bmp.readPressure() / 100.0F;
+    }
+
+    // DHT Connect
+    SerialMon.print("DHT22: ");
+    dht.begin();
+    if (isnan(dht.readHumidity()))
+    {
+        SerialMon.println(" Failed");
+    }
+    else
+    {
+        SerialMon.println(" OK");
+        _humidity2 = dht.readHumidity();
+    }
+    delay(10);
+}
+
+#else
+Adafruit_BME280 bme1;
+Adafruit_BME280 bme2;
+Adafruit_BME280 bme3;
 
 void selectBmeBus(uint8_t bus)
 {
@@ -55,7 +114,7 @@ void updateTemperatureHumidityPressureInner(const char *name, Adafruit_BME280 bm
 
     selectBmeBus(bus);
 
-    if (!bme.begin(0x76))
+    if (!bme.begin(BME_ADDR))
     {
         SerialMon.println(" Failed");
         return;
@@ -77,6 +136,7 @@ void SensorManager::updateTemperatureHumidityPressure()
 
     updateTemperatureHumidityPressureInner("3", bme3, 4, &_temperature3, &_humidity3, &_pressure3);
 }
+#endif
 
 void SensorManager::updateLux()
 {

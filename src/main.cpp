@@ -1,11 +1,8 @@
-#include <Arduino.h>
-#include <Wire.h>
-
-#include "SdCard.h"
-#include "SensorManager.h"
-
 #define DEMO_MARIA_STATION // Choose a location/station
 // #define USE_GSM            // Choose between GSM or WiFi (Uncomment to use GSM Mode)
+
+#include <Arduino.h>
+#include <Wire.h>
 
 #ifdef USE_GSM
 #define SMART_APN
@@ -13,6 +10,8 @@
 #define WIFI_1
 #endif
 
+#include "SdCard.h"
+#include "SensorManager.h"
 #include "deviceConfig.h"
 
 #ifdef USE_GSM
