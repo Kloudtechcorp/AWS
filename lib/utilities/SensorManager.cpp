@@ -110,17 +110,17 @@ void selectBmeBus(uint8_t bus)
 void updateTemperatureHumidityPressureInner(const char *name, Adafruit_BME280 bme, int bus, float *temp, float *hum, float *pres)
 {
     // BME280 Connect
-    SerialMon.printf("BME %s: ", name);
+    SerialMon.printf("BME %s: \t\t", name);
 
     selectBmeBus(bus);
 
     if (!bme.begin(BME_ADDR))
     {
-        SerialMon.println(" Failed");
+        SerialMon.println("Failed");
         return;
     }
 
-    SerialMon.println(" OK");
+    SerialMon.println("OK");
     *temp = bme.readTemperature();
     *hum = bme.readHumidity();
     *pres = bme.readPressure() / 100.0F;
@@ -140,7 +140,7 @@ void SensorManager::updateTemperatureHumidityPressure()
 
 void SensorManager::updateLux()
 {
-    SerialMon.print("BH1750: ");
+    SerialMon.print("BH1750: \t");
 
     if (!lightMeter.begin())
     {
@@ -157,7 +157,7 @@ void SensorManager::updateUvIntensity()
 {
     const int DEBOUNCE_THRESHOLD = 10;
 
-    SerialMon.print("UV: ");
+    SerialMon.print("UV: \t\t");
 
     analogReadResolution(12);
     int sensorValue = analogRead(UV_PIN);
@@ -172,14 +172,14 @@ void SensorManager::updateUvIntensity()
     if (abs(sensorValue - _uvPrevSensorValue) <= DEBOUNCE_THRESHOLD)
     {
         _uvPrevSensorValue = sensorValue;
-        SerialMon.println(" OK");
+        SerialMon.println("OK");
 
         float sensorVoltage = sensorValue * (3.3 / 4095.0);
         _uvIntensity = sensorVoltage * 1000;
     }
     else
     {
-        SerialMon.println(" Failed");
+        SerialMon.println("Failed");
         return;
     }
 }
@@ -396,7 +396,7 @@ float performWindMeasurement()
 
 void SensorManager::updateWindDirection()
 {
-    SerialMon.print("AS5600: ");
+    SerialMon.print("AS5600: \t");
 
     loadCalibration();
 
@@ -406,27 +406,27 @@ void SensorManager::updateWindDirection()
 
     if (error != 0)
     {
-        SerialMon.println(" Failed");
+        SerialMon.println("Failed");
         return;
     }
 
-    SerialMon.println(" OK");
+    SerialMon.println("OK");
 
     _windDirection = performWindMeasurement();
 }
 
 void SensorManager::updateSlave()
 {
-    SerialMon.print("Slave: ");
+    SerialMon.print("Slave: \t\t");
 
     Wire.beginTransmission(SLAVE_ADDR);
     if (Wire.endTransmission() != 0)
     {
-        SerialMon.println(" Failed");
+        SerialMon.println("Failed");
         return;
     }
 
-    SerialMon.println(" OK");
+    SerialMon.println("OK");
 
     Wire.requestFrom(SLAVE_ADDR, 6);
 
@@ -460,15 +460,15 @@ void SensorManager::updateSlave()
 
 void SensorManager::updateBatteryVoltage()
 {
-    SerialMon.print("INA219: ");
+    SerialMon.print("INA219: \t");
 
     if (!ina219.begin())
     {
-        SerialMon.println(" Failed");
+        SerialMon.println("Failed");
         return;
     }
 
-    SerialMon.println(" OK");
+    SerialMon.println("OK");
 
     _batteryVoltage = ina219.getBusVoltage_V();
 }

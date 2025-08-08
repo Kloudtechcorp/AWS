@@ -60,7 +60,8 @@ public:
 
     void updateAll()
     {
-        SerialMon.println("\n=================================== Sensors Status ===================================");
+        SerialMon.println("\n=================================================");
+        SerialMon.println("Sensors Status");
 
         updateTemperatureHumidityPressure();
         delay(10);

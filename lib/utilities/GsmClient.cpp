@@ -112,21 +112,21 @@ GsmClient::~GsmClient()
 
 void GsmClient::apnConnect()
 {
-    SerialMon.println("\n=================================== Connecting to APN ===================================");
-    SerialMon.printf("Connecting to %s", _apn);
+    SerialMon.printf("Connecting to APN: %s", _apn);
+    SerialMon.print("\nStatus: ");
 
     while (!_isApnConnected && _apnRetryCount < MAX_RETRIES_APN)
     {
         if (!modem.gprsConnect(_apn))
         {
             _apnCommunicationStatus = "Failed";
-            SerialMon.print(".");
+            // SerialMon.print(".");
             _apnRetryCount++;
             delay(15000);
         }
         else
         {
-            SerialMon.println(" >OK");
+            SerialMon.println("OK");
             _apnCommunicationStatus = "Success";
             _isApnConnected = true;
         }
@@ -135,9 +135,8 @@ void GsmClient::apnConnect()
 
 void GsmClient::serverConnect()
 {
-    SerialMon.println("\n=================================== Connecting to Server ===================================");
-    SerialMon.printf("Connecting to %s", SERVER_ADDRESS);
-
+    SerialMon.printf("Connecting to server: %s", SERVER_ADDRESS);
+    SerialMon.print("\nStatus: ");
     while (_isApnConnected && !_isServerConnected && _serverRetryCount < MAX_RETRIES_SERVER)
     {
         if (!baseClient.connect(SERVER_ADDRESS, SERVER_PORT))
@@ -148,7 +147,7 @@ void GsmClient::serverConnect()
         }
         else
         {
-            SerialMon.println(" >OK");
+            SerialMon.println("OK");
             _isServerConnected = true;
         }
     }
@@ -156,7 +155,6 @@ void GsmClient::serverConnect()
 
 void GsmClient::disconnect()
 {
-    SerialMon.println("\n========================================Closing Client========================================");
     client.stop();
     SerialMon.println(F("Server disconnected"));
     modem.gprsDisconnect();
@@ -235,15 +233,13 @@ void GsmClient::updateDateTime()
 
 void GsmClient::sendData(String postData)
 {
-    SerialMon.println("\n========================================HTTP Post Request========================================");
+    SerialMon.println("=================================================");    
     SerialMon.println("Performing HTTP POST request...");
     client.connectionKeepAlive();
-    SerialMon.printf("Connecting to %s\n", SERVER_ADDRESS);
-
+    SerialMon.printf("Connected to %s\n", SERVER_ADDRESS);
     SerialMon.println("Making POST request securely");
-
-    SerialMon.println("\n=========================================POST Data ============================================");
-    SerialMon.println(postData);
+    SerialMon.println("=================================================");
+    SerialMon.printf("POST Data:\n %s\n", postData.c_str());
 
     client.beginRequest();
     client.post(RESOURCE_PATH_PREFIX + _deviceSerial);
@@ -258,4 +254,6 @@ void GsmClient::sendData(String postData)
     String response = client.responseBody();
     SerialMon.printf("Status code: %d\n", status_code);
     SerialMon.println("Response: " + response);
+    SerialMon.println("=================================================");    
+
 }

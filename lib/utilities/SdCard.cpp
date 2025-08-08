@@ -15,7 +15,7 @@ SPIClass spi = SPIClass(VSPI);
 
 SdCard::SdCard()
 {
-    SerialMon.println("\n=================================== SD Card Initializing ===================================");
+    SerialMon.println("=================================================");
     SerialMon.println("Connecting to SD Card...");
     spi.begin(SCK, MISO, MOSI, CS);
 }
@@ -80,5 +80,4 @@ void SdCard::logData(String path, String header, String data)
     appendFile(SD, path, data);
 
     SerialMon.println("Data logged successfully.");
-    SerialMon.println();
 }

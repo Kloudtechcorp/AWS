@@ -1,5 +1,5 @@
 #define DEMO_MARIA_STATION // Choose a location/station
-// #define USE_GSM            // Choose between GSM or WiFi (Uncomment to use GSM Mode)
+#define USE_GSM            // Choose between GSM or WiFi (Uncomment to use GSM Mode)
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -29,18 +29,18 @@ void setup()
     SerialMon.begin(115200);
     Wire.begin(21, 22);
     delay(10);
-    SerialMon.println("\nStation Name: " + stationName);
+    SerialMon.println("\n=================================================");
+    SerialMon.println("Station Name: " + stationName);
 
     commClient.connect();
 }
 
 void loop()
 {
-    SerialMon.println("\n=================================== Sensors Status ===================================");
     commClient.updateDateTime();
     DateTime dateTime = commClient.getDateTime();
     String dateTimeStr = dateTime.toString();
-    SerialMon.println("Date and Time: " + dateTimeStr);
+    SerialMon.print("Date and Time: " + dateTimeStr);
 
     SensorManager sensorManager;
     sensorManager.updateAll();
@@ -73,7 +73,8 @@ void loop()
 
     if (commClient.isConnected())
     {
-        SerialMon.println("\n=================================== Print results ===================================");
+        SerialMon.println("=================================================");
+        SerialMon.println("Sending Data to Server...");
         SerialMon.println("T1 = " + t1Str);
         SerialMon.println("T2 = " + t2Str);
         SerialMon.println("T3 = " + t3Str);
@@ -98,7 +99,8 @@ void loop()
         commClient.disconnect();
     }
 
-    SerialMon.print("\nSleeping...\n");
+    SerialMon.println("Sleeping...");
+    SerialMon.println("=================================================\n");    
     int sleeptimer = 60000 - (millis() % 60000);
     esp_sleep_enable_timer_wakeup(sleeptimer * 1000);
     esp_deep_sleep_start();
