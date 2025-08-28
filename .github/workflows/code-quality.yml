@@ -27,10 +27,13 @@ jobs:
                    --suppress=unusedFunction \
                    --suppress=virtualCallInConstructor \
                    --suppress=checkersReport \
+                   --suppress=missingInclude \
                    --inline-suppr \
                    --std=c++11 \
                    --platform=unix32 \
                    --verbose \
+                   -I lib/utilities \
+                   -I include \
                    src/ lib/utilities/
                    
       - name: Check for common C++ issues
