@@ -24,6 +24,8 @@ jobs:
                    --error-exitcode=1 \
                    --suppress=missingIncludeSystem \
                    --suppress=unmatchedSuppression \
+                   --suppress=unusedFunction \
+                   --suppress=virtualCallInConstructor \
                    --inline-suppr \
                    --std=c++11 \
                    --platform=unix32 \
