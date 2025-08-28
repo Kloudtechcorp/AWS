@@ -48,7 +48,7 @@ git pull origin main
 3. Wait for PlatformIO to automatically install the dependencies from the `platformio.ini` file.
 4. Run `PlatformIO: Build` to build the project.
 
-*Note: When getting "Please configure IDF framework to include mbedTLS -> Enable pre-shared-key ciphersuites and activate at least one cipher" error when compiling, see [this commit](https://github.com/gravitech-engineer/AIS_IoT_4G/pull/8/commits/11a26867f73f45a54e46d8132b264b4eb5ff93ad).*
+*Note: When getting "Please configure IDF framework to include mbedTLS -> Enable pre-shared-key ciphersuites and activate at least one cipher" error when compiling, go to .pio/libdeps/esp32dev/SSLClient/src/ssl_client.cpp. In line 22, change the word error to warning.*
 
 ### Build Flags
 
@@ -99,10 +99,10 @@ This flag determines the device serial number and the station name.
 
 ## Testing
 
-For testing purposes, the resource path of POST request, `/api/{version}/weather/insert-data?serial={serial}`, can be modified, where `{version}` is the API version (e.g., `v1`, `test`) and `{serial}` is the serial number of the station. For example,
+For testing purposes, the resource path of POST request, `/api/{version}/weather/insert-data?serial={serial}`, can be modified in line 9 found in lib/utilities/BaseClient.h, where `{version}` is the API version (e.g., `v1`, `test`) and `{serial}` is the serial number of the station. For example,
 
 ```
-/api/test/weather/insert-data?serial=XXXX-XXXX-XXXX-XXXX
+const String RESOURCE_PATH_PREFIX = "/api/v1/weather/insert-data?serial=";
 ```
 
 The test server dashboard can then be accessed at `test.kloudtechsea.com`, requiring a valid username and password to log in. The dashboard will display the data sent from the weather station.
