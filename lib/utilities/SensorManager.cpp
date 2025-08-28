@@ -180,7 +180,6 @@ void SensorManager::updateLux()
 
 void SensorManager::updateUvIntensity()
 {
-    const int DEBOUNCE_THRESHOLD = 10;
 
     SerialMon.print("UV: \t\t");
 
@@ -208,7 +207,7 @@ void SensorManager::updateUvIntensity()
     }
 }
 
-float calculateCircularAverage(float *angles, int count)
+float calculateCircularAverage(const float *angles, int count)
 {
     // Convert to unit vectors and average
     float sumX = 0, sumY = 0;
