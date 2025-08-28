@@ -26,6 +26,7 @@ jobs:
                    --suppress=unmatchedSuppression \
                    --suppress=unusedFunction \
                    --suppress=virtualCallInConstructor \
+                   --suppress=checkersReport \
                    --inline-suppr \
                    --std=c++11 \
                    --platform=unix32 \
