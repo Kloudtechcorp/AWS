@@ -48,10 +48,10 @@ void createHeader(fs::FS &fs, String path, String message)
     if (!file)
     {
         SerialMon.print("\nFile does not exist creating header files now...");
-        File file = fs.open(path, FILE_APPEND);
+        file = fs.open(path, FILE_APPEND);
         if (file.println(message))
         {
-            SerialMon.println(" >OK");
+            SerialMon.printf("File %s exists", path);
         }
         else
         {

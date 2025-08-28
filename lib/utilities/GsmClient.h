@@ -29,27 +29,27 @@ public:
     GsmClient(const char *apn, const char *deviceSerial);
     ~GsmClient();
 
-    virtual void connect()
+    virtual void connect() override
     {
         apnConnect();
         serverConnect();
     }
 
-    virtual void disconnect();
+    virtual void disconnect() override;
 
-    virtual bool isConnected()
+    virtual bool isConnected() override
     {
         return _isApnConnected && _isServerConnected;
     }
 
-    virtual String getCommunicationStatus()
+    virtual String getCommunicationStatus() override
     {
         return _apnCommunicationStatus;
     }
 
-    virtual void updateDateTime();
+    virtual void updateDateTime() override;
 
-    virtual DateTime getDateTime() { return _dateTime; }
+    virtual DateTime getDateTime() override { return _dateTime; }
 
-    virtual void sendData(String postData);
+    virtual void sendData(String postData) override;
 };

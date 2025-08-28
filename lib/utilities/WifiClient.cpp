@@ -88,7 +88,7 @@ void WifiClient::updateDateTime()
     // }
 
     // Convert Unix epoch time to readable format
-    struct tm *timeinfo;
+    const struct tm *timeinfo;
     time_t rawtime = unix_epoch;
     timeinfo = localtime(&rawtime);
 

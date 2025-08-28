@@ -6,7 +6,7 @@
 
 const char SERVER_ADDRESS[] = "app.kloudtechsea.com";
 const int SERVER_PORT = 443;
-const String RESOURCE_PATH_PREFIX = "/api/test/weather/insert-data?serial=";
+const String RESOURCE_PATH_PREFIX = "/api/v1/weather/insert-data?serial=";
 
 class BaseClient
 {

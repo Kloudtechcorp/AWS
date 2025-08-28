@@ -1,5 +1,12 @@
 #pragma once
 
+#include <Arduino.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
+#include <Adafruit_INA219.h>
+#include <BH1750.h>
+#include <Preferences.h>
 #define SerialMon Serial
 
 class SensorManager
@@ -19,8 +26,7 @@ private:
 
     float _lux = 0.0;
 
-    int _uvPrevSensorValue = 0;
-    int _uvIntensity = 0;
+    float _uvIntensity = 0.0;
 
     float _windDirection = 0.0;
 
@@ -51,7 +57,7 @@ public:
     float getPressure3() { return _pressure3; }
 
     float getLux() { return _lux; }
-    int getUvIntensity() { return _uvIntensity; }
+    float getUvIntensity() { return _uvIntensity; }
     float getWindDirection() { return _windDirection; }
     float getWindSpeed() { return _windSpeed; }
     float getRain() { return _rain; }

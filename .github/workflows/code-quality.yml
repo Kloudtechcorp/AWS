@@ -1,0 +1,46 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Install cppcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cppcheck
+          
+      - name: Run cppcheck on source files
+        run: |
+          cppcheck --enable=all \
+                   --error-exitcode=1 \
+                   --suppress=missingIncludeSystem \
+                   --suppress=unmatchedSuppression \
+                   --suppress=unusedFunction \
+                   --suppress=virtualCallInConstructor \
+                   --suppress=checkersReport \
+                   --suppress=missingInclude \
+                   --suppress=toomanyconfigs \
+                   --inline-suppr \
+                   --std=c++11 \
+                   --platform=unix32 \
+                   --verbose \
+                   -I lib/utilities \
+                   -I include \
+                   src/ lib/utilities/
+                   
+      - name: Check for common C++ issues
+        run: |
+          echo "Checking for potential issues..."
+          # Check for missing include guards
+          find . -name "*.h" -exec grep -L "#pragma once\|#ifndef.*_H\|#ifndef.*_HPP" {} \; || true
+          # Check for TODO/FIXME comments
+          grep -r "TODO\|FIXME\|XXX" src/ lib/ || echo "No TODOs found"
