@@ -1,10 +1,52 @@
 # KT-Weather-Station
 
+## Getting Started
+
+### Cloning the Repository
+
+If you haven't cloned the repository yet, you can do so using one of these methods:
+
+**Option 1: Command Terminal (CMD/PowerShell/Git Bash)**
+```bash
+git clone https://github.com/Kloudtechcorp/AWS.git
+cd AWS
+```
+
+**Option 2: VSCode Terminal**
+1. Open VSCode
+2. Open the integrated terminal (Ctrl+` or View → Terminal)
+3. Run the clone command:
+```bash
+git clone https://github.com/Kloudtechcorp/AWS.git
+cd AWS
+```
+
+**Option 3: VSCode Git Integration**
+1. Open VSCode
+2. Press `Ctrl+Shift+P` to open the command palette
+3. Run `Git: Clone` command 
+4. Enter the repository URL: `https://github.com/Kloudtechcorp/AWS.git`
+5. Choose a local folder to clone into
+
+### Pulling Latest Changes
+
+To get the latest changes from the repository:
+
+**Using Terminal:**
+```bash
+git pull origin main
+```
+
+**Using VSCode:**
+1. Open the Source Control panel (Ctrl+Shift+G)
+2. Click the "..." menu and select "Pull"
+
 ## Building
 
 1. Install VSCode and the PlatformIO extension (`platformio.platformio-ide`).
-2. Run `Git: Clone` command in VSCode with `git@github.com:Kloudtechcorp/AWS.git` as the repository URL to clone the repository.
-3. Once the project is loaded and the dependencies from the `platformio.ini` file are installed, run `PlatformIO: Build` to build the project.
+2. Open the cloned project folder in VSCode.
+3. Wait for PlatformIO to automatically install the dependencies from the `platformio.ini` file.
+4. Run `PlatformIO: Build` to build the project.
 
 *Note: When getting "Please configure IDF framework to include mbedTLS -> Enable pre-shared-key ciphersuites and activate at least one cipher" error when compiling, see [this commit](https://github.com/gravitech-engineer/AIS_IoT_4G/pull/8/commits/11a26867f73f45a54e46d8132b264b4eb5ff93ad).*
 
