@@ -28,6 +28,7 @@ jobs:
                    --suppress=virtualCallInConstructor \
                    --suppress=checkersReport \
                    --suppress=missingInclude \
+                   --suppress=toomanyconfigs \
                    --inline-suppr \
                    --std=c++11 \
                    --platform=unix32 \
