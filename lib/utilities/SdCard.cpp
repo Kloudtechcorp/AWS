@@ -51,7 +51,7 @@ void createHeader(fs::FS &fs, String path, String message)
         File file = fs.open(path, FILE_APPEND);
         if (file.println(message))
         {
-            SerialMon.println(" >OK");
+            SerialMon.printf("File %s exists", path);
         }
         else
         {

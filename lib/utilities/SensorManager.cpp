@@ -1,8 +1,3 @@
-#include <Adafruit_BME280.h>
-#include <Adafruit_INA219.h>
-#include <BH1750.h>
-#include <Preferences.h>
-
 #include "SensorManager.h"
 
 #define SerialMon Serial
@@ -10,27 +5,25 @@
 const uint8_t UV_PIN = 32;
 
 const int BME_ADDR = 0x76;
-const int BME_WIRE_ADDR = 0x70;
+const int MULTIPLEXER_ADDR = 0x70;
 const int AS5600_ADDR = 0x36;
 const int AS5600_ANGLE_REG = 0x0E;
-const int SLAVE_ADDR = 0x08;
+const int SLAVE_ADDR = 0x03;
 
 const int WIND_DIRECTION_BURST_SAMPLES = 30;
 const int WIND_DIRECTION_SAMPLE_INTERVAL = 100;
 
-const int RAIN_TIP_VALUE = 0.1099;
-const float CALIBRATION_FACTOR = 2.4845;
+const float RAIN_TIP_VALUE = 0.1099;
+const float WINDSPEED_CALIBRATION_FACTOR = 2.4845;
 const float RADIUS = 0.05;
-const float CIRCUMFERENCE = 2 * PI * RADIUS * CALIBRATION_FACTOR;
+const float CIRCUMFERENCE = 2 * PI * RADIUS * WINDSPEED_CALIBRATION_FACTOR;
 const int PERIOD = 60;
 
 Preferences preferences;
-
 BH1750 lightMeter;
-
 Adafruit_INA219 ina219;
 
-float isCalibrated = false;
+bool isCalibrated = false;
 float northOffset = 0.0;
 bool isDirectionReversed = false;
 
@@ -45,7 +38,6 @@ SensorManager::SensorManager()
 const uint8_t DHT_PIN = 4;
 
 Adafruit_BME280 bme;
-
 Adafruit_BMP085 bmp;
 
 DHT dht(4, DHT22);
@@ -100,15 +92,39 @@ Adafruit_BME280 bme1;
 Adafruit_BME280 bme2;
 Adafruit_BME280 bme3;
 
-void selectBmeBus(uint8_t bus)
-{
-    Wire.beginTransmission(BME_WIRE_ADDR);
-    Wire.write(1 << bus);
-    Wire.endTransmission();
+void i2cUnstick(uint8_t sda = 21, uint8_t scl = 22) {
+    Wire.end();
+    pinMode(sda, INPUT_PULLUP);
+    pinMode(scl, OUTPUT);
+    for (int i = 0; i < 9; ++i) {
+        digitalWrite(scl, HIGH);
+        delayMicroseconds(5);
+        digitalWrite(scl, LOW);
+        delayMicroseconds(5);
+    }
+    pinMode(sda, OUTPUT);
+    digitalWrite(sda, HIGH);
+    digitalWrite(scl, HIGH);
+    delayMicroseconds(5);
+    pinMode(sda, INPUT_PULLUP);
+    pinMode(scl, INPUT_PULLUP);
+
+    Wire.begin(21, 22);
+    Wire.setTimeOut(20);
+    Wire.setClock(100000);
 }
 
-void updateTemperatureHumidityPressureInner(const char *name, Adafruit_BME280 bme, int bus, float *temp, float *hum, float *pres)
+void selectBmeBus(uint8_t bus)
 {
+    Wire.beginTransmission(MULTIPLEXER_ADDR);
+    Wire.write(1 << bus);
+    Wire.endTransmission();
+    delay(2);
+}
+
+void updateTemperatureHumidityPressureInner(const char *name, Adafruit_BME280 &bme, int bus, float *temp, float *hum, float *pres)
+{ 
+    i2cUnstick();
     // BME280 Connect
     SerialMon.printf("BME %s: \t\t", name);
 
@@ -119,6 +135,15 @@ void updateTemperatureHumidityPressureInner(const char *name, Adafruit_BME280 bm
         SerialMon.println("Failed");
         return;
     }
+
+    bme.setSampling(
+        Adafruit_BME280::MODE_FORCED,
+        Adafruit_BME280::SAMPLING_X2,   // temp
+        Adafruit_BME280::SAMPLING_X4,   // pressure
+        Adafruit_BME280::SAMPLING_X4,   // humidity
+        Adafruit_BME280::FILTER_X4,
+        Adafruit_BME280::STANDBY_MS_0_5
+    );
 
     SerialMon.println("OK");
     *temp = bme.readTemperature();
@@ -160,27 +185,26 @@ void SensorManager::updateUvIntensity()
     SerialMon.print("UV: \t\t");
 
     analogReadResolution(12);
+
+    // Take multiple readings for stability
     int sensorValue = analogRead(UV_PIN);
-
-    if (abs(sensorValue - _uvPrevSensorValue) > DEBOUNCE_THRESHOLD)
-    {
-        _uvPrevSensorValue = sensorValue;
-        delay(50);
-        sensorValue = analogRead(UV_PIN);
+    for (int i = 0; i < 10; i++) {
+        sensorValue += analogRead(UV_PIN);
+        delay(10);
     }
+    sensorValue /= 10;
 
-    if (abs(sensorValue - _uvPrevSensorValue) <= DEBOUNCE_THRESHOLD)
-    {
-        _uvPrevSensorValue = sensorValue;
-        SerialMon.println("OK");
+    float voltage = (sensorValue * 3.3) / 4095.0;
 
-        float sensorVoltage = sensorValue * (3.3 / 4095.0);
-        _uvIntensity = sensorVoltage * 1000;
-    }
-    else
+    if (voltage < 0.0 || voltage > 1.2)
     {
-        SerialMon.println("Failed");
+        SerialMon.println(" Failed");
+        _uvIntensity = -1; // Use -1 to indicate error
         return;
+    }
+    else {
+        SerialMon.println(" OK");
+        _uvIntensity = voltage * 1000.0;
     }
 }
 
@@ -351,7 +375,7 @@ float performWindMeasurement()
         else if (cmd == 't' || cmd == 'T')
         {
             // Test measurement now
-            performWindMeasurement();
+            SerialMon.println("Taking test measurement...");
         }
     }
 
@@ -429,7 +453,7 @@ void SensorManager::updateSlave()
     SerialMon.println("OK");
 
     Wire.requestFrom(SLAVE_ADDR, 6);
-
+    /*
     // Rain
     if (Wire.available() >= 4)
     {
@@ -456,6 +480,17 @@ void SensorManager::updateSlave()
         uint16_t receivedGustCount = (msb << 8) | lsb;
         _gust = ((CIRCUMFERENCE * receivedGustCount * 3.6) / 3);
     }
+    */
+    byte rainMsb = Wire.read();
+    byte rainLsb = Wire.read();
+    byte windMsb = Wire.read();
+    byte windLsb = Wire.read();
+    byte gustMsb = Wire.read();
+    byte gustLsb = Wire.read();
+
+    _rain = ((rainMsb << 8) | rainLsb) * RAIN_TIP_VALUE;
+    _windSpeed = ((CIRCUMFERENCE * ((windMsb << 8) | windLsb) * 3.6) / PERIOD);
+    _gust = ((CIRCUMFERENCE * ((gustMsb << 8) | gustLsb) * 3.6) / 3);
 }
 
 void SensorManager::updateBatteryVoltage()

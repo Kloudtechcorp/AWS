@@ -239,7 +239,7 @@ void GsmClient::sendData(String postData)
     SerialMon.printf("Connected to %s\n", SERVER_ADDRESS);
     SerialMon.println("Making POST request securely");
     SerialMon.println("=================================================");
-    SerialMon.printf("POST Data:\n %s\n", postData.c_str());
+    SerialMon.printf("POST Data:\n%s\n", postData.c_str());
 
     client.beginRequest();
     client.post(RESOURCE_PATH_PREFIX + _deviceSerial);
